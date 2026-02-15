@@ -5,7 +5,7 @@ Drawn as a filled circle with a wedge cut out for the unfilled portion.
 """
 
 import math
-from src.config import PIE_RADIUS, PIE_CENTER_X, PIE_CENTER_Y, PIE_STROKE, FontParams
+from sources.config import PIE_RADIUS, PIE_CENTER_X, PIE_CENTER_Y, PIE_STROKE, FontParams
 
 
 def _arc_points(cx, cy, r, start_angle, end_angle):

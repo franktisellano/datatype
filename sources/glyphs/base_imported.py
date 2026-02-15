@@ -7,7 +7,7 @@ https://github.com/IBM/plex
 import pickle
 import os
 
-from src.config import UPM, ASCENDER, ASCII_WIDTH, SPACE_WIDTH, DIGIT_WIDTH, CAP_HEIGHT, X_HEIGHT
+from sources.config import UPM, ASCENDER, ASCII_WIDTH, SPACE_WIDTH, DIGIT_WIDTH, CAP_HEIGHT, X_HEIGHT
 
 # Load imported glyph data
 _SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))

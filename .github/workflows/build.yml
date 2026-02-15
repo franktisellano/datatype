@@ -24,14 +24,18 @@ jobs:
         pip install --upgrade pip
         pip install -r requirements.txt
 
-    - name: Build fonts
-      run: python sources/build.py --dev
+    - name: Build fonts (full build with static instances)
+      run: python sources/build.py
 
     - name: Check font files exist
       run: |
         test -f fonts/variable/Datatype[wdth,wght].ttf
         test -f fonts/variable/Datatype[wdth,wght].woff2
-        echo "✓ Font files built successfully"
+        test -d fonts/ttf
+        test -d fonts/webfonts
+        echo "✓ Variable fonts: $(ls fonts/variable/*.ttf fonts/variable/*.woff2 | wc -l) files"
+        echo "✓ Static TTF: $(ls fonts/ttf/*.ttf | wc -l) files"
+        echo "✓ Static WOFF2: $(ls fonts/webfonts/*.woff2 | wc -l) files"
 
     - name: Upload font artifacts
       uses: actions/upload-artifact@v4
@@ -59,8 +63,8 @@ jobs:
         pip install -r requirements.txt
         pip install -r requirements-dev.txt
 
-    - name: Build fonts
-      run: python sources/build.py --dev
+    - name: Build fonts (full build for validation)
+      run: python sources/build.py
 
     - name: Run fontbakery checks
       run: |

@@ -1,7 +1,7 @@
 """Base ASCII glyphs: .notdef, space, printable ASCII, punctuation."""
 
 import math
-from src.config import UPM, ASCENDER, ASCII_WIDTH, SPACE_WIDTH, DIGIT_WIDTH, CAP_HEIGHT, X_HEIGHT
+from sources.config import UPM, ASCENDER, ASCII_WIDTH, SPACE_WIDTH, DIGIT_WIDTH, CAP_HEIGHT, X_HEIGHT
 
 # Design constants for refined letterforms
 STROKE_WEIGHT = 80          # Base stroke thickness (unchanged)

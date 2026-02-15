@@ -1,7 +1,7 @@
 """Sparkline glyph drawing and OpenType feature generation."""
 
 import math
-from src.config import (
+from sources.config import (
     CHART_HEIGHT, CHART_BASELINE, SPARK_LINE_THICKNESS,
     MAX_VALUE, FontParams,
 )

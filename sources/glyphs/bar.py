@@ -1,6 +1,6 @@
 """Bar chart glyph drawing and OpenType feature generation."""
 
-from src.config import (
+from sources.config import (
     CHART_HEIGHT, CHART_BASELINE,
     FontParams,
 )

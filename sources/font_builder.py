@@ -10,7 +10,7 @@ from fontTools import varLib
 from fontTools.varLib.instancer import instantiateVariableFont
 from fontTools.otlLib.builder import buildStatTable
 
-from src.config import (
+from sources.config import (
     UPM, ASCENDER, DESCENDER, FAMILY_NAME, REGULAR_STYLE,
     CAP_HEIGHT, X_HEIGHT, FONT_VERSION,
 )
