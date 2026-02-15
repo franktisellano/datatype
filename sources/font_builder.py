@@ -303,16 +303,17 @@ def build_variable_font(master_fonts, axes_config, named_instances=None):
     return vf
 
 
-def export_static_instance(vf, location, output_dir, basename, style_name, weight_class):
+def export_static_instance(vf, location, output_dir, basename, style_name, weight_class, woff2_dir=None):
     """Export a static font instance from a variable font.
 
     Args:
         vf: variable TTFont
         location: dict of axis tag → value to pin, e.g. {"wght": 700, "wdth": 15}
-        output_dir: output directory
+        output_dir: output directory for TTF files
         basename: font family basename (e.g. "Datatype")
         style_name: style name (e.g. "Bold")
         weight_class: OS/2 usWeightClass value
+        woff2_dir: optional separate output directory for WOFF2 files (defaults to output_dir)
     """
     import copy
     import os
@@ -348,7 +349,11 @@ def export_static_instance(vf, location, output_dir, basename, style_name, weigh
     static.save(ttf_path)
     print(f"    {ttf_path}")
 
+    # WOFF2 export to separate directory if specified
+    woff2_output_dir = woff2_dir if woff2_dir else output_dir
+    os.makedirs(woff2_output_dir, exist_ok=True)
+
     static.flavor = "woff2"
-    woff2_path = os.path.join(output_dir, f"{basename}-{style_name}.woff2")
+    woff2_path = os.path.join(woff2_output_dir, f"{basename}-{style_name}.woff2")
     static.save(woff2_path)
     print(f"    {woff2_path}")

@@ -203,10 +203,9 @@ def build_all():
         print(f"  Exporting {basename}...")
         export_font(vf, variable_dir, basename, is_variable=True)
 
-        # Export static instances (TTF and WOFF2 separately)
+        # Export static instances (TTF to ttf/, WOFF2 to webfonts/)
         print(f"  Exporting static instances...")
         for style_name, wdth, wght in NAMED_INSTANCES:
-            # Export to TTF directory
             export_static_instance(
                 vf,
                 location={"wght": wght, "wdth": wdth},
@@ -214,15 +213,7 @@ def build_all():
                 basename=f"{FAMILY_NAME}{suffix}",
                 style_name=style_name,
                 weight_class=wght,
-            )
-            # Export to WOFF2 directory
-            export_static_instance(
-                vf,
-                location={"wght": wght, "wdth": wdth},
-                output_dir=woff2_dir,
-                basename=f"{FAMILY_NAME}{suffix}",
-                style_name=style_name,
-                weight_class=wght,
+                woff2_dir=woff2_dir,
             )
 
     elapsed = time.time() - start
