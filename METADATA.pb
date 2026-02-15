@@ -11,7 +11,7 @@ fonts {
   filename: "Datatype[wdth,wght].ttf"
   post_script_name: "Datatype-Regular"
   full_name: "Datatype Regular"
-  copyright: "Copyright 2026 Frank Tisellano"
+  copyright: "Copyright 2026 The Datatype Project Authors (https://github.com/franktisellano/datatype)"
 }
 
 subsets: "latin"
@@ -41,6 +41,15 @@ registry_default_overrides {
 
 source {
   repository_url: "https://github.com/franktisellano/datatype"
+  commit: "2d8e8817846471ccce1802c21d3027d9dfacbb61"
+  files {
+    source_file: "fonts/variable/Datatype[wdth,wght].ttf"
+    dest_file: "Datatype[wdth,wght].ttf"
+  }
+  files {
+    source_file: "OFL.txt"
+    dest_file: "OFL.txt"
+  }
   branch: "main"
 }
 

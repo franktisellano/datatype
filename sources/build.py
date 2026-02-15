@@ -9,13 +9,13 @@ import argparse
 PROJECT_ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 sys.path.insert(0, PROJECT_ROOT)
 
-from src.config import FAMILY_NAME, FontParams, SCALES, AXIS_MASTERS, NAMED_INSTANCES
-from src.glyphs.base_imported import draw_base_glyphs  # IBM Plex Mono glyphs
-from src.glyphs.bar import draw_bar_glyphs, generate_bar_feature_code
-from src.glyphs.sparkline import draw_sparkline_glyphs, generate_sparkline_feature_code
-from src.glyphs.pie import draw_pie_glyphs, generate_pie_feature_code
-from src.font_builder import build_font, build_variable_font, export_static_instance
-from src.export import export_font
+from sources.config import FAMILY_NAME, FontParams, SCALES, AXIS_MASTERS, NAMED_INSTANCES
+from sources.glyphs.base_imported import draw_base_glyphs  # IBM Plex Mono glyphs
+from sources.glyphs.bar import draw_bar_glyphs, generate_bar_feature_code
+from sources.glyphs.sparkline import draw_sparkline_glyphs, generate_sparkline_feature_code
+from sources.glyphs.pie import draw_pie_glyphs, generate_pie_feature_code
+from sources.font_builder import build_font, build_variable_font, export_static_instance
+from sources.export import export_font
 
 
 def _build_master(max_value, params, feature_code):
@@ -74,7 +74,7 @@ feature calt {{
 def build_dev():
     """Build only the default variable font for development."""
     start = time.time()
-    output_dir = os.path.join(PROJECT_ROOT, "fonts")
+    output_dir = os.path.join(PROJECT_ROOT, "fonts", "variable")
 
     print("Datatype Dev Build")
     print("=" * 50)
@@ -137,12 +137,14 @@ def build_dev():
 
     elapsed = time.time() - start
     print(f"\nBuild complete in {elapsed:.1f}s")
-    print(f"Output: {output_dir}/\n")
+    print(f"Output: fonts/variable/\n")
 
 def build_all():
     """Build all Datatype variants."""
     start = time.time()
-    output_dir = os.path.join(PROJECT_ROOT, "fonts")
+    variable_dir = os.path.join(PROJECT_ROOT, "fonts", "variable")
+    ttf_dir = os.path.join(PROJECT_ROOT, "fonts", "ttf")
+    woff2_dir = os.path.join(PROJECT_ROOT, "fonts", "webfonts")
 
     print("Datatype Build")
     print("=" * 50)
@@ -199,16 +201,25 @@ def build_all():
         # Export variable font
         basename = f"{FAMILY_NAME}{suffix}"
         print(f"  Exporting {basename}...")
-        export_font(vf, output_dir, basename, is_variable=True)
+        export_font(vf, variable_dir, basename, is_variable=True)
 
-        # Export static instances
-        static_dir = os.path.join(output_dir, "static")
+        # Export static instances (TTF and WOFF2 separately)
         print(f"  Exporting static instances...")
         for style_name, wdth, wght in NAMED_INSTANCES:
+            # Export to TTF directory
             export_static_instance(
                 vf,
                 location={"wght": wght, "wdth": wdth},
-                output_dir=static_dir,
+                output_dir=ttf_dir,
+                basename=f"{FAMILY_NAME}{suffix}",
+                style_name=style_name,
+                weight_class=wght,
+            )
+            # Export to WOFF2 directory
+            export_static_instance(
+                vf,
+                location={"wght": wght, "wdth": wdth},
+                output_dir=woff2_dir,
                 basename=f"{FAMILY_NAME}{suffix}",
                 style_name=style_name,
                 weight_class=wght,
@@ -216,7 +227,10 @@ def build_all():
 
     elapsed = time.time() - start
     print(f"\nBuild complete in {elapsed:.1f}s")
-    print(f"Output: {output_dir}/\n")
+    print(f"Output:")
+    print(f"  Variable: fonts/variable/")
+    print(f"  Static TTF: fonts/ttf/")
+    print(f"  Static WOFF2: fonts/webfonts/\n")
 
 
 if __name__ == "__main__":

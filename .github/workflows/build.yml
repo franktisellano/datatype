@@ -25,12 +25,12 @@ jobs:
         pip install -r requirements.txt
 
     - name: Build fonts
-      run: python src/build.py --dev
+      run: python sources/build.py --dev
 
     - name: Check font files exist
       run: |
-        test -f fonts/Datatype[wdth,wght].ttf
-        test -f fonts/Datatype[wdth,wght].woff2
+        test -f fonts/variable/Datatype[wdth,wght].ttf
+        test -f fonts/variable/Datatype[wdth,wght].woff2
         echo "✓ Font files built successfully"
 
     - name: Upload font artifacts
@@ -60,11 +60,11 @@ jobs:
         pip install -r requirements-dev.txt
 
     - name: Build fonts
-      run: python src/build.py --dev
+      run: python sources/build.py --dev
 
     - name: Run fontbakery checks
       run: |
-        fontbakery check-googlefonts "fonts/Datatype[wdth,wght].ttf" --succinct || true
+        fontbakery check-googlefonts "fonts/variable/Datatype[wdth,wght].ttf" --succinct || true
         echo "✓ Fontbakery validation complete (check logs for details)"
       continue-on-error: true
 

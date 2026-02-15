@@ -145,10 +145,10 @@ pip install -r requirements.txt
 
 ```bash
 # Build all variants (2 variable fonts + 16 static instances)
-python src/build.py
+python sources/build.py
 
 # Development mode (faster, builds only default variant)
-python src/build.py --dev
+python sources/build.py --dev
 ```
 
 ### Development Server
@@ -163,9 +163,10 @@ python dev/server.py
 ```
 
 **Output:**
-- `fonts/Datatype[wdth,wght].ttf` — Variable font (TTF, 4.0MB)
-- `fonts/Datatype[wdth,wght].woff2` — Variable font (WOFF2, 73KB)
-- `fonts/static/` — 15 static instances (TTF + WOFF2)
+- `fonts/variable/Datatype[wdth,wght].ttf` — Variable font (TTF, 4.0MB)
+- `fonts/variable/Datatype[wdth,wght].woff2` — Variable font (WOFF2, 73KB)
+- `fonts/ttf/` — 15 static TTF instances
+- `fonts/webfonts/` — 15 static WOFF2 instances
 
 ---
 
@@ -232,14 +233,18 @@ python dev/server.py
 
 ```
 datatype/
-├── src/                    # Python build scripts
+├── sources/                # Python build scripts
 │   ├── build.py           # Main build script
 │   ├── config.py          # Font parameters & scales
 │   ├── font_builder.py    # FontTools assembly
 │   └── glyphs/            # Glyph drawing modules
+├── documentation/          # Font description for Google Fonts
 ├── docs/                   # Specimen website (GitHub Pages)
 ├── dev/                    # Development server
 ├── fonts/                  # Generated fonts
+│   ├── variable/          # Variable font files
+│   ├── ttf/               # Static TTF instances
+│   └── webfonts/          # Static WOFF2 instances
 └── OFL.txt                 # SIL Open Font License 1.1
 ```
 
@@ -253,7 +258,7 @@ See [CONTRIBUTING.md](CONTRIBUTING.md) for development guidelines.
 1. Fork the repository
 2. Create a feature branch (`git checkout -b feature/my-feature`)
 3. Make your changes
-4. Test thoroughly (`python src/build.py`)
+4. Test thoroughly (`python sources/build.py`)
 5. Submit a pull request
 
 ---

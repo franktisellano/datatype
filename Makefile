@@ -4,10 +4,10 @@ install:
 	pip install -r requirements.txt
 
 build:
-	python src/build.py
+	python sources/build.py
 
 dev:
 	nohup python dev/server.py &
 
 clean:
-	rm -rf fonts/*.ttf fonts/*.woff2
+	rm -rf fonts/variable/* fonts/ttf/* fonts/webfonts/*

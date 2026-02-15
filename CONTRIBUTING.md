@@ -45,7 +45,7 @@ source .venv/bin/activate  # On Windows: .venv\Scripts\activate
 pip install -r requirements.txt
 
 # Build fonts
-python src/build.py --dev
+python sources/build.py --dev
 
 # Start development server
 python dev/server.py
@@ -60,10 +60,10 @@ python dev/server.py
 
 Datatype generates OpenType variable fonts using fontTools. The key components:
 
-1. **`src/config.py`** — Font parameters, scales, axis masters
-2. **`src/glyphs/`** — Glyph drawing modules (bar, sparkline, pie, base)
-3. **`src/font_builder.py`** — Font assembly and variable font generation
-4. **`src/build.py`** — Main build orchestration
+1. **`sources/config.py`** — Font parameters, scales, axis masters
+2. **`sources/glyphs/`** — Glyph drawing modules (bar, sparkline, pie, base)
+3. **`sources/font_builder.py`** — Font assembly and variable font generation
+4. **`sources/build.py`** — Main build orchestration
 
 **Variable font structure:**
 - **9 masters per scale** — Full coverage of width/weight design space
@@ -73,13 +73,13 @@ Datatype generates OpenType variable fonts using fontTools. The key components:
 ### Making Changes
 
 **For glyph design changes:**
-1. Edit `src/glyphs/bar.py`, `sparkline.py`, or `pie.py`
-2. Rebuild: `python src/build.py --dev`
+1. Edit `sources/glyphs/bar.py`, `sparkline.py`, or `pie.py`
+2. Rebuild: `python sources/build.py --dev`
 3. Preview in browser: http://localhost:8080
 
 **For font parameters:**
-1. Edit `src/config.py` (AXIS_MASTERS, FontParams)
-2. Rebuild: `python src/build.py`
+1. Edit `sources/config.py` (AXIS_MASTERS, FontParams)
+2. Rebuild: `python sources/build.py`
 3. Verify all masters build correctly
 
 **For feature code:**
@@ -137,8 +137,8 @@ export default function datatypePlugin() {
 Before submitting changes, verify:
 
 **Build tests:**
-- [ ] `python src/build.py --dev` completes without errors
-- [ ] `python src/build.py` (full build) completes successfully
+- [ ] `python sources/build.py --dev` completes without errors
+- [ ] `python sources/build.py` (full build) completes successfully
 - [ ] Output files created in `fonts/` directory
 
 **Visual tests:**

@@ -72,7 +72,7 @@ async def notify_reload():
 def run_build(dev=False):
     """Run the font build script."""
     print("  Rebuilding fonts...")
-    cmd = [sys.executable, os.path.join(PROJECT_ROOT, "src", "build.py")]
+    cmd = [sys.executable, os.path.join(PROJECT_ROOT, "sources", "build.py")]
     if dev:
         cmd.append("--dev")
     result = subprocess.run(
@@ -91,7 +91,7 @@ def run_build(dev=False):
 
 
 class FileWatcher:
-    """Watch src/ directory for changes using watchdog."""
+    """Watch sources/ directory for changes using watchdog."""
 
     def __init__(self, loop, dev=False):
         self.loop = loop
@@ -120,7 +120,7 @@ class FileWatcher:
                     asyncio.run_coroutine_threadsafe(notify_reload(), watcher.loop)
 
         observer = Observer()
-        observer.schedule(Handler(), os.path.join(PROJECT_ROOT, "src"), recursive=True)
+        observer.schedule(Handler(), os.path.join(PROJECT_ROOT, "sources"), recursive=True)
         observer.start()
         return observer
 
@@ -138,7 +138,7 @@ async def main():
     http_server = run_http_server()
     print(f"\n  HTTP:      http://localhost:{HTTP_PORT}")
     print(f"  WebSocket: ws://localhost:{WS_PORT}")
-    print(f"\n  Watching src/ for changes...")
+    print(f"\n  Watching sources/ for changes...")
     print(f"  Press Ctrl+C to stop\n")
 
     # Start file watcher

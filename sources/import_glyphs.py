@@ -24,7 +24,7 @@ QWERTY_CHARS = [
 
 def extract_glyphs():
     """Extract glyph data from IBM Plex Mono."""
-    source_font = TTFont('src/IBMPlexMono-Regular.otf')
+    source_font = TTFont('sources/IBMPlexMono-Regular.otf')
 
     # Get the glyph set and character map
     glyph_set = source_font.getGlyphSet()
@@ -102,6 +102,6 @@ if __name__ == '__main__':
 
     # Save extracted data
     import pickle
-    with open('src/imported_glyphs.pkl', 'wb') as f:
+    with open('sources/imported_glyphs.pkl', 'wb') as f:
         pickle.dump(glyphs, f)
-    print(f"\nSaved glyph data to src/imported_glyphs.pkl")
+    print(f"\nSaved glyph data to sources/imported_glyphs.pkl")
