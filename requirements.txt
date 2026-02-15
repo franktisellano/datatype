@@ -1,0 +1,4 @@
+fonttools[woff2]
+brotli
+watchdog
+websockets

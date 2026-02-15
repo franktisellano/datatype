@@ -1,0 +1,22 @@
+# Python
+.venv/
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+
+# Claude Code
+.claude/
+
+# Build output (uncomment if you don't want to commit built fonts)
+# fonts/
+
+# TTX dumps (debugging files)
+*.xml
+
+# Logs
+*.log
+nohup.out
+
+# macOS
+.DS_Store

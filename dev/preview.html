@@ -1,0 +1,674 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Datatype Preview</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Roboto&family=Open+Sans&family=Lato&family=Montserrat&family=Source+Sans+3&family=Merriweather&family=Playfair+Display&family=Lora&family=PT+Serif&family=Roboto+Mono&family=Fira+Code&family=JetBrains+Mono&family=IBM+Plex+Sans&family=Nunito&family=Raleway&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #1a1a2e;
+    --surface: #16213e;
+    --border: #2a3a5e;
+    --text: #e0e0e0;
+    --accent: #4fc3f7;
+    --muted: #7a8ba8;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Inter', system-ui, sans-serif;
+    padding: 2rem 2rem 4rem;
+    line-height: 1.6;
+  }
+
+  h1 { color: var(--accent); margin-bottom: 0.25rem; font-size: 1.5rem; font-weight: 600; }
+  h2 {
+    color: var(--accent);
+    margin: 2rem 0 0.75rem;
+    font-size: 1rem;
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    cursor: pointer;
+    user-select: none;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+  h2:hover { opacity: 0.8; }
+  h2::before {
+    content: '▶';
+    font-size: 0.7em;
+    transition: transform 0.2s;
+  }
+  h2.expanded::before {
+    transform: rotate(90deg);
+  }
+  .subtitle { color: var(--muted); margin-bottom: 2rem; font-size: 0.85rem; }
+
+  .section-content {
+    max-height: 0;
+    overflow: hidden;
+    transition: max-height 0.3s ease-out;
+  }
+  .section-content.expanded {
+    max-height: 10000px;
+  }
+
+  .status {
+    position: fixed; top: 0; left: 0; right: 0;
+    padding: 4px 12px;
+    font-size: 11px;
+    text-align: center;
+    z-index: 100;
+    transition: all 0.3s;
+    font-family: 'Inter', sans-serif;
+  }
+  .status.connected { background: #1b5e20; color: #a5d6a7; }
+  .status.disconnected { background: #b71c1c; color: #ef9a9a; }
+
+  .editor {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 1.5rem;
+    font-family: 'Datatype', monospace;
+    font-variation-settings: var(--chart-axes, 'wdth' 50, 'wght' 400);
+    font-size: 28px;
+    line-height: 2;
+    min-height: 100px;
+    outline: none;
+    margin-bottom: 1rem;
+  }
+  .editor:focus { border-color: var(--accent); }
+  .editor .chart-expr {
+    font-family: 'Datatype', monospace;
+    font-variation-settings: var(--chart-axes, 'wdth' 50, 'wght' 400);
+  }
+
+  .test-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 1.25rem;
+    margin-bottom: 1rem;
+  }
+  .test-card .label {
+    color: var(--muted);
+    font-size: 0.7rem;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    margin-bottom: 0.75rem;
+    font-weight: 500;
+  }
+  .test-card .sample {
+    font-family: 'Datatype', 'Inter', sans-serif;
+    font-variation-settings: var(--chart-axes, 'wdth' 50, 'wght' 400);
+    line-height: 2;
+  }
+
+  .test-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1rem;
+  }
+
+  .size-row {
+    display: flex;
+    align-items: baseline;
+    gap: 1.5rem;
+    flex-wrap: wrap;
+    margin: 0.25rem 0;
+  }
+  .size-label {
+    color: var(--muted);
+    font-size: 0.7rem;
+    min-width: 40px;
+    font-family: 'Inter', sans-serif;
+  }
+
+  .test-card .inline-demo {
+    font-family: var(--inline-font, 'Inter'), sans-serif;
+    font-size: 20px;
+    line-height: 2.2;
+  }
+  .test-card .inline-demo .c {
+    font-family: 'Datatype', var(--inline-font, 'Inter'), sans-serif;
+    font-variation-settings: var(--chart-axes, 'wdth' 50, 'wght' 400);
+  }
+
+  .font-picker {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin-bottom: 0.75rem;
+    flex-wrap: wrap;
+  }
+  .font-picker label {
+    color: var(--muted);
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    font-weight: 500;
+  }
+  .font-picker select {
+    background: var(--bg);
+    color: var(--text);
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    padding: 6px 10px;
+    font-size: 0.85rem;
+    font-family: 'Inter', sans-serif;
+    cursor: pointer;
+    outline: none;
+  }
+  .font-picker select:focus { border-color: var(--accent); }
+
+  .controls {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 1.25rem;
+    margin-bottom: 1.5rem;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1.5rem;
+    align-items: center;
+  }
+  .controls .control-group {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+  .controls label {
+    color: var(--muted);
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    font-weight: 500;
+    white-space: nowrap;
+  }
+  .controls input[type="range"] {
+    width: 140px;
+    accent-color: var(--accent);
+  }
+  .controls .value {
+    color: var(--accent);
+    font-size: 0.8rem;
+    min-width: 32px;
+    text-align: right;
+    font-variant-numeric: tabular-nums;
+  }
+
+  code {
+    background: rgba(79, 195, 247, 0.1);
+    color: var(--accent);
+    padding: 2px 6px;
+    border-radius: 3px;
+    font-size: 0.8em;
+    font-family: 'SF Mono', 'Fira Code', monospace;
+  }
+
+  .glyph-table {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
+    gap: 0.5rem;
+  }
+  .glyph-cell {
+    background: rgba(79, 195, 247, 0.05);
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    padding: 0.75rem;
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+  .glyph-char {
+    font-family: 'Datatype', 'Inter', sans-serif;
+    font-variation-settings: var(--chart-axes, 'wdth' 50, 'wght' 400);
+    font-size: 48px;
+    line-height: 1;
+  }
+  .glyph-label {
+    font-size: 0.7rem;
+    color: var(--muted);
+    font-family: 'SF Mono', 'Fira Code', monospace;
+  }
+</style>
+</head>
+<body>
+
+<div class="status disconnected" id="status">Connecting...</div>
+
+<h1>Datatype Preview</h1>
+<p class="subtitle">
+  Syntax: <code>{b:75,30,100}</code> <code>{l:0,25,50,75,100}</code> <code>{p:75}</code>
+  &mdash; variable font with <code>wdth</code> and <code>wght</code> axes.
+  Auto-reloads on source changes.
+</p>
+
+<h2>Controls</h2>
+<div class="controls">
+  <div class="control-group">
+    <label for="wdthSlider">Width:</label>
+    <input type="range" id="wdthSlider" min="0" max="100" value="50" step="1">
+    <span class="value" id="wdthValue">50</span>
+  </div>
+  <div class="control-group">
+    <label for="thckSlider">Weight:</label>
+    <input type="range" id="thckSlider" min="100" max="900" value="400" step="1">
+    <span class="value" id="thckValue">400</span>
+  </div>
+</div>
+
+<h2 class="section-toggle">Live Editor</h2>
+<div class="section-content">
+  <div class="font-picker">
+    <label for="editorSizeSelect">Size:</label>
+    <select id="editorSizeSelect">
+      <option value="14">14px</option>
+      <option value="18">18px</option>
+      <option value="24">24px</option>
+      <option value="28" selected>28px</option>
+      <option value="36">36px</option>
+      <option value="48">48px</option>
+      <option value="64">64px</option>
+      <option value="120">120px</option>
+    </select>
+  </div>
+  <div class="editor" contenteditable="true" id="editor"></div>
+</div>
+
+<h2 class="section-toggle expanded">QWERTY Keyboard Glyphs</h2>
+<div class="section-content expanded">
+  <div class="test-card">
+    <div class="label">All glyphs available on a standard US QWERTY keyboard</div>
+    <div class="controls" style="margin-bottom: 1rem; background: transparent; border: none; padding: 0;">
+      <div class="control-group">
+        <label for="glyphSize">Glyph Size:</label>
+        <input type="range" id="glyphSize" min="12" max="240" value="48" step="1">
+        <span class="value" id="glyphSizeValue">48px</span>
+      </div>
+    </div>
+    <div class="glyph-table" id="glyphTable"></div>
+  </div>
+</div>
+
+<h2 class="section-toggle">Bar Charts</h2>
+<div class="section-content">
+  <div class="test-card">
+    <div class="label">Values 0-100</div>
+    <div class="sample" style="font-size: 28px;">
+      {b:0,10,20,30,40,50,60,70,80,90,100}<br>
+      {b:75,30,100,0,50}<br>
+      {b:5,50,100,7,99}<br>
+      {b:3,7,2,9}<br>
+      {b:100,1,100,1}
+    </div>
+  </div>
+</div>
+
+<h2 class="section-toggle">Sparklines</h2>
+<div class="section-content">
+  <div class="test-card">
+    <div class="label">Values 0-100</div>
+    <div class="sample" style="font-size: 28px;">
+      {l:0,25,50,75,100}<br>
+      {l:100,0}<br>
+      {l:10,90,20,80,50}<br>
+      {l:2,5,3,8,1}<br>
+      {l:50,50,50,50,50}
+    </div>
+  </div>
+</div>
+
+<h2 class="section-toggle">Sparklines &times; 100</h2>
+<div class="section-content">
+  <div class="test-card">
+    <div class="label">100 random sparklines, 10 data points each</div>
+    <div class="controls" style="margin-bottom: 1rem; background: transparent; border: none; padding: 0;">
+      <div class="control-group">
+        <label for="sparkGridSize">Size:</label>
+        <input type="range" id="sparkGridSize" min="10" max="480" value="28" step="1">
+        <span class="value" id="sparkGridSizeValue">28px</span>
+      </div>
+    </div>
+    <div class="sample" style="font-size: 28px;" id="sparkGrid"></div>
+  </div>
+
+  <div class="test-card" style="margin-top: 1.5rem;">
+    <div class="label">Single segment debug — 480px</div>
+    <div class="sample" style="font-size: 480px; line-height: 1.2;">{l:90,10}</div>
+  </div>
+</div>
+
+<h2 class="section-toggle">Pie Charts (Percentage)</h2>
+<div class="section-content">
+  <div class="test-card">
+    <div class="label">Values 0-100 (percentage)</div>
+    <div class="sample" style="font-size: 28px;">
+      {p:0} {p:10} {p:25} {p:50} {p:75} {p:100}<br>
+      {p:1} {p:33} {p:67} {p:99}
+    </div>
+  </div>
+</div>
+
+<h2 class="section-toggle">Inline Usage</h2>
+<div class="section-content">
+  <div class="test-card">
+    <div class="font-picker">
+      <label for="fontSelect">Body font:</label>
+      <select id="fontSelect">
+        <optgroup label="Sans-Serif">
+          <option value="Inter" selected>Inter</option>
+          <option value="Roboto">Roboto</option>
+          <option value="Open Sans">Open Sans</option>
+          <option value="Lato">Lato</option>
+          <option value="Montserrat">Montserrat</option>
+          <option value="Source Sans 3">Source Sans 3</option>
+          <option value="IBM Plex Sans">IBM Plex Sans</option>
+          <option value="Nunito">Nunito</option>
+          <option value="Raleway">Raleway</option>
+        </optgroup>
+        <optgroup label="Serif">
+          <option value="Merriweather">Merriweather</option>
+          <option value="Playfair Display">Playfair Display</option>
+          <option value="Lora">Lora</option>
+          <option value="PT Serif">PT Serif</option>
+        </optgroup>
+        <optgroup label="Monospace">
+          <option value="Roboto Mono">Roboto Mono</option>
+          <option value="Fira Code">Fira Code</option>
+          <option value="JetBrains Mono">JetBrains Mono</option>
+        </optgroup>
+        <optgroup label="System">
+          <option value="system-ui">System UI</option>
+          <option value="Georgia">Georgia</option>
+          <option value="Courier New">Courier New</option>
+          <option value="Arial">Arial</option>
+          <option value="Times New Roman">Times New Roman</option>
+        </optgroup>
+      </select>
+    </div>
+    <div class="sample inline-demo" id="inlineDemo">
+      Sales <span class="c">{l:20,40,70,50,90}</span> trending upward this quarter<br>
+      Q1 results <span class="c">{b:30,70,20,90}</span> beat expectations<br>
+      Budget <span class="c">{p:73}</span> utilized year-to-date<br>
+      CPU usage <span class="c">{p:42}</span> with load <span class="c">{l:30,55,80,60,40,75,95}</span>
+    </div>
+  </div>
+</div>
+
+<h2 class="section-toggle">Size Comparison</h2>
+<div class="section-content">
+  <div class="test-card">
+    <div class="label">Same expressions at different font sizes</div>
+    <div class="size-row">
+      <span class="size-label">14px</span>
+      <span class="sample" style="font-size:14px">{b:30,70,20,90} {l:20,50,30,80,10} {p:65}</span>
+    </div>
+    <div class="size-row">
+      <span class="size-label">18px</span>
+      <span class="sample" style="font-size:18px">{b:30,70,20,90} {l:20,50,30,80,10} {p:65}</span>
+    </div>
+    <div class="size-row">
+      <span class="size-label">24px</span>
+      <span class="sample" style="font-size:24px">{b:30,70,20,90} {l:20,50,30,80,10} {p:65}</span>
+    </div>
+    <div class="size-row">
+      <span class="size-label">36px</span>
+      <span class="sample" style="font-size:36px">{b:30,70,20,90} {l:20,50,30,80,10} {p:65}</span>
+    </div>
+    <div class="size-row">
+      <span class="size-label">48px</span>
+      <span class="sample" style="font-size:48px">{b:30,70,20,90} {l:20,50,30,80,10} {p:65}</span>
+    </div>
+  </div>
+</div>
+
+<script>
+(function() {
+  let fontVersion = Date.now();
+  let wdthValue = 50;
+  let thckValue = 400;
+
+  function loadFonts(v) {
+    const style = document.getElementById('fontStyle') || (() => {
+      const s = document.createElement('style');
+      s.id = 'fontStyle';
+      document.head.appendChild(s);
+      return s;
+    })();
+    style.textContent = `
+      @font-face {
+        font-family: 'Datatype';
+        src: url('/fonts/Datatype.woff2?v=${v}') format('woff2'),
+             url('/fonts/Datatype.ttf?v=${v}') format('truetype');
+        font-weight: 100 900;
+        font-stretch: 0% 100%;
+        font-display: swap;
+      }
+    `;
+  }
+
+  function updateAxes() {
+    const val = `'wdth' ${wdthValue}, 'wght' ${thckValue}`;
+    document.documentElement.style.setProperty('--chart-axes', val);
+  }
+
+  loadFonts(fontVersion);
+  updateAxes();
+
+  // Axis sliders
+  const wdthSlider = document.getElementById('wdthSlider');
+  const wdthDisplay = document.getElementById('wdthValue');
+  wdthSlider.addEventListener('input', () => {
+    wdthValue = parseInt(wdthSlider.value);
+    wdthDisplay.textContent = wdthValue;
+    updateAxes();
+  });
+
+  const thckSlider = document.getElementById('thckSlider');
+  const thckDisplay = document.getElementById('thckValue');
+  thckSlider.addEventListener('input', () => {
+    thckValue = parseInt(thckSlider.value);
+    thckDisplay.textContent = thckValue;
+    updateAxes();
+  });
+
+  // Collapsible sections
+  document.querySelectorAll('.section-toggle').forEach(header => {
+    header.addEventListener('click', () => {
+      header.classList.toggle('expanded');
+      const content = header.nextElementSibling;
+      content.classList.toggle('expanded');
+    });
+  });
+
+  // Status / WebSocket
+  const statusEl = document.getElementById('status');
+
+  function connectWS() {
+    const ws = new WebSocket('ws://localhost:8081');
+
+    ws.onopen = () => {
+      statusEl.className = 'status connected';
+      statusEl.textContent = 'Connected — watching for changes';
+    };
+
+    ws.onmessage = (event) => {
+      const data = JSON.parse(event.data);
+      if (data.type === 'reload') {
+        fontVersion = Date.now();
+        loadFonts(fontVersion);
+        statusEl.textContent = 'Fonts reloaded';
+        setTimeout(() => {
+          statusEl.textContent = 'Connected — watching for changes';
+        }, 1500);
+      }
+    };
+
+    ws.onclose = () => {
+      statusEl.className = 'status disconnected';
+      statusEl.textContent = 'Disconnected — reconnecting...';
+      setTimeout(connectWS, 2000);
+    };
+
+    ws.onerror = () => ws.close();
+  }
+
+  connectWS();
+
+  // QWERTY keyboard glyph table
+  const qwertyChars = [
+    // Numbers
+    '0', '1', '2', '3', '4', '5', '6', '7', '8', '9',
+    // Uppercase letters
+    'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M',
+    'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z',
+    // Lowercase letters
+    'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm',
+    'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z',
+    // Symbols
+    '!', '@', '#', '$', '%', '^', '&', '*', '(', ')', '-', '_', '=', '+',
+    '[', ']', '{', '}', '\\', '|', ';', ':', '\'', '"', ',', '.', '/', '?',
+    '<', '>', '`', '~', ' '
+  ];
+
+  const glyphTable = document.getElementById('glyphTable');
+  qwertyChars.forEach(char => {
+    const cell = document.createElement('div');
+    cell.className = 'glyph-cell';
+
+    const charDiv = document.createElement('div');
+    charDiv.className = 'glyph-char';
+    charDiv.textContent = char === ' ' ? '␣' : char;
+
+    const label = document.createElement('div');
+    label.className = 'glyph-label';
+    label.textContent = char === ' ' ? 'space' :
+                       char === '\'' ? '\\\'' :
+                       char === '\\' ? '\\\\' :
+                       char;
+
+    cell.appendChild(charDiv);
+    cell.appendChild(label);
+    glyphTable.appendChild(cell);
+  });
+
+  // Font pickers
+  const fontSelect = document.getElementById('fontSelect');
+  const inlineDemo = document.getElementById('inlineDemo');
+  fontSelect.addEventListener('change', () => {
+    const font = fontSelect.value;
+    inlineDemo.style.setProperty('--inline-font', `'${font}'`);
+    inlineDemo.querySelectorAll('.c').forEach(el => {
+      el.style.fontFamily = `'Datatype', '${font}', sans-serif`;
+    });
+  });
+
+  // Live editor — wrap chart expressions on input
+  const editorFontSelect = document.getElementById('editorFontSelect');
+  const editor = document.getElementById('editor');
+  const chartPattern = /(\{[blp]:[^}]*\})/g;
+
+  function getTextOffset(root, node, offset) {
+    let total = 0;
+    const walk = document.createTreeWalker(root, NodeFilter.SHOW_TEXT);
+    while (walk.nextNode()) {
+      if (walk.currentNode === node) return total + offset;
+      total += walk.currentNode.length;
+    }
+    return total;
+  }
+
+  function setCaretAt(root, target) {
+    let pos = 0;
+    const walk = document.createTreeWalker(root, NodeFilter.SHOW_TEXT);
+    while (walk.nextNode()) {
+      const len = walk.currentNode.length;
+      if (pos + len >= target) {
+        const sel = window.getSelection();
+        sel.collapse(walk.currentNode, target - pos);
+        return;
+      }
+      pos += len;
+    }
+    // Fallback: end of content
+    const sel = window.getSelection();
+    sel.selectAllChildren(root);
+    sel.collapseToEnd();
+  }
+
+  function renderEditor() {
+    const sel = window.getSelection();
+    let caretPos = 0;
+    if (sel.rangeCount && editor.contains(sel.anchorNode)) {
+      caretPos = getTextOffset(editor, sel.anchorNode, sel.anchorOffset);
+    }
+
+    const text = editor.innerText;
+    const html = text
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+      .replace(chartPattern, '<span class="chart-expr">$1</span>')
+      .replace(/\n/g, '<br>');
+
+    if (editor.innerHTML !== html) {
+      editor.innerHTML = html;
+      setCaretAt(editor, caretPos);
+    }
+  }
+
+  editor.addEventListener('input', renderEditor);
+
+  // Set initial content and render
+  editor.textContent = 'Sales {l:20,50,30,80,10} are up. Revenue {b:30,70,20,90} by quarter. Budget {p:75} used.';
+  renderEditor();
+
+  // Editor now always uses Datatype font
+  const editorSizeSelect = document.getElementById('editorSizeSelect');
+  editorSizeSelect.addEventListener('change', () => {
+    editor.style.fontSize = editorSizeSelect.value + 'px';
+  });
+
+  // === Spark Grid (100 random sparklines) ===
+  const sparkGrid = document.getElementById('sparkGrid');
+  const lines = [];
+  for (let i = 0; i < 100; i++) {
+    const pts = [];
+    for (let j = 0; j < 10; j++) pts.push(Math.floor(Math.random() * 101));
+    lines.push('{l:' + pts.join(',') + '}');
+  }
+  sparkGrid.innerHTML = lines.join('<br>\n');
+
+  const sparkGridSizeSlider = document.getElementById('sparkGridSize');
+  const sparkGridSizeDisplay = document.getElementById('sparkGridSizeValue');
+  sparkGridSizeSlider.addEventListener('input', () => {
+    const sz = sparkGridSizeSlider.value;
+    sparkGridSizeDisplay.textContent = sz + 'px';
+    sparkGrid.style.fontSize = sz + 'px';
+  });
+
+  // Glyph size slider
+  const glyphSizeSlider = document.getElementById('glyphSize');
+  const glyphSizeDisplay = document.getElementById('glyphSizeValue');
+  glyphSizeSlider.addEventListener('input', () => {
+    const sz = glyphSizeSlider.value;
+    glyphSizeDisplay.textContent = sz + 'px';
+    document.querySelectorAll('.glyph-char').forEach(el => {
+      el.style.fontSize = sz + 'px';
+    });
+  });
+})();
+</script>
+</body>
+</html>

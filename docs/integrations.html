@@ -1,0 +1,439 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Integration Guide — Datatype</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="preload" href="Datatype.woff2" as="font" type="font/woff2" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Zilla+Slab:ital,wght@0,400;0,700;1,300;1,400;1,500;1,700&family=Inter:wght@400;500;600&family=Fira+Code&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="base.css">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-tomorrow.min.css">
+<script>
+  // Apply theme before render to prevent flash
+  (function() {
+    var s = localStorage.getItem('theme');
+    var dark = s ? s === 'dark' : window.matchMedia('(prefers-color-scheme: dark)').matches;
+    if (dark) document.documentElement.setAttribute('data-theme', 'dark');
+  })();
+</script>
+<style>
+  /* Page-specific styles */
+  body {
+    padding: 3rem 0;
+  }
+
+  .intro {
+    padding: 2rem 0 3rem;
+  }
+
+  .intro h1 {
+    font-size: 3.5rem;
+    margin-bottom: 0.5rem;
+  }
+
+  .intro .lead {
+    font-size: 1.25rem;
+  }
+</style>
+</head>
+<body>
+<button class="theme-toggle" aria-label="Toggle dark mode">☾</button>
+<div class="container">
+  <a href="index.html" class="back-link">← Back to Datatype overview</a>
+
+  <div class="intro">
+    <h1>Datatype integration guide</h1>
+    <p class="lead">How to use Datatype in web projects, frameworks, and static site generators</p>
+  </div>
+
+  <section>
+  <h2>Quick start</h2>
+
+  <h3>1. Download the font</h3>
+  <p>Get <code>Datatype.woff2</code> from the <a href="https://github.com/franktisellano/datatype/releases">latest release</a> and add it to your project.</p>
+
+  <h3>2. Load the font</h3>
+  <p>Add this CSS to your stylesheet:</p>
+  <pre><code>@font-face {
+  font-family: 'Datatype';
+  src: url('/fonts/Datatype.woff2') format('woff2');
+  font-weight: 100 900;      /* Variable weight axis */
+  font-stretch: 0% 100%;     /* Variable width axis */
+  font-display: swap;
+}</code></pre>
+
+  <h3>3. Apply to chart elements</h3>
+  <p>Style elements that contain chart syntax:</p>
+  <pre><code>.chart {
+  font-family: 'Datatype', sans-serif;
+  font-feature-settings: 'liga' 1, 'calt' 1;
+  font-variant-ligatures: common-ligatures contextual;
+  letter-spacing: 0;
+}</code></pre>
+
+  <h3>4. Use chart syntax</h3>
+  <pre><code>&lt;p&gt;
+  Sales &lt;span class="chart"&gt;{l:20,45,60,55,80,95}&lt;/span&gt; are up this quarter.
+&lt;/p&gt;</code></pre>
+
+  </section>
+
+  <section>
+  <h2>Framework-specific setup</h2>
+
+  <h3>Next.js</h3>
+  <p><strong>Using next/font/local (Recommended)</strong></p>
+  <pre><code>// app/layout.js or pages/_app.js
+import localFont from 'next/font/local'
+
+const datatype = localFont({
+  src: './fonts/Datatype.woff2',
+  variable: '--font-datatype',
+  weight: '100 900',
+  stretch: '0% 100%',
+  display: 'swap',
+})
+
+export default function RootLayout({ children }) {
+  return (
+    &lt;html className={datatype.variable}&gt;
+      &lt;body&gt;{children}&lt;/body&gt;
+    &lt;/html&gt;
+  )
+}</code></pre>
+
+  <p><strong>CSS:</strong></p>
+  <pre><code>.chart {
+  font-family: var(--font-datatype), sans-serif;
+  font-feature-settings: 'liga' 1, 'calt' 1;
+}</code></pre>
+
+  <h3>Astro</h3>
+  <p>Place <code>Datatype.woff2</code> in <code>public/fonts/</code>, then add to your layout:</p>
+  <pre><code>---
+// src/layouts/Layout.astro
+---
+&lt;style is:global&gt;
+  @font-face {
+    font-family: 'Datatype';
+    src: url('/fonts/Datatype.woff2') format('woff2');
+    font-weight: 100 900;
+    font-stretch: 0% 100%;
+    font-display: swap;
+  }
+
+  .chart {
+    font-family: 'Datatype', sans-serif;
+    font-feature-settings: 'liga' 1, 'calt' 1;
+  }
+&lt;/style&gt;</code></pre>
+
+  <h3>Vite / React / Vue</h3>
+  <p>Place font in <code>public/fonts/</code>, then add to your CSS:</p>
+  <pre><code>/* styles.css or App.css */
+@font-face {
+  font-family: 'Datatype';
+  src: url('/fonts/Datatype.woff2') format('woff2');
+  font-weight: 100 900;
+  font-stretch: 0% 100%;
+  font-display: swap;
+}
+
+.chart {
+  font-family: 'Datatype', sans-serif;
+  font-feature-settings: 'liga' 1, 'calt' 1;
+}</code></pre>
+
+  <h3>Eleventy (11ty)</h3>
+  <p>Place font in <code>src/fonts/</code> and add passthrough copy:</p>
+  <pre><code>// .eleventy.js
+module.exports = function(eleventyConfig) {
+  eleventyConfig.addPassthroughCopy("src/fonts");
+};</code></pre>
+
+  <p>Then add CSS to your stylesheet.</p>
+
+  <h3>SvelteKit</h3>
+  <p>Place font in <code>static/fonts/</code>, then add to <code>app.css</code>:</p>
+  <pre><code>@font-face {
+  font-family: 'Datatype';
+  src: url('/fonts/Datatype.woff2') format('woff2');
+  font-weight: 100 900;
+  font-stretch: 0% 100%;
+  font-display: swap;
+}</code></pre>
+
+  </section>
+
+  <section>
+  <h2>Variable font axes</h2>
+
+  <p>Datatype has two variable axes you can control:</p>
+
+  <table>
+    <thead>
+      <tr>
+        <th>Axis</th>
+        <th>Tag</th>
+        <th>Range</th>
+        <th>Default</th>
+        <th>Effect</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><strong>Width</strong></td>
+        <td><code>wdth</code></td>
+        <td>0–100</td>
+        <td>50</td>
+        <td>Controls spacing between chart elements</td>
+      </tr>
+      <tr>
+        <td><strong>Weight</strong></td>
+        <td><code>wght</code></td>
+        <td>100–900</td>
+        <td>400</td>
+        <td>Controls line thickness</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <h3>Controlling axes with CSS</h3>
+  <p><strong>Method 1: Standard properties (Recommended)</strong></p>
+  <pre><code>.chart {
+  font-family: 'Datatype', sans-serif;
+  font-weight: 600;          /* wght axis */
+  font-stretch: 75%;         /* wdth axis */
+}</code></pre>
+
+  <p><strong>Method 2: font-variation-settings</strong></p>
+  <pre><code>.chart {
+  font-family: 'Datatype', sans-serif;
+  font-variation-settings: 'wdth' 75, 'wght' 600;
+}</code></pre>
+
+  <div class="note">
+    <p><strong>Safari Note:</strong> When using <code>font-variation-settings</code>, include ALL axes in a single declaration. Safari doesn't merge separate axis declarations like Chrome/Firefox do.</p>
+  </div>
+
+  </section>
+
+  <section>
+  <h2>Chart syntax reference</h2>
+
+  <h3>Bar charts</h3>
+  <pre><code>{b:value,value,value,...}</code></pre>
+  <ul>
+    <li>Values: 0–100</li>
+    <li>Up to 20 bars</li>
+    <li>Example: <code>{b:15,45,80,30,60,90}</code></li>
+  </ul>
+
+  <h3>Sparklines</h3>
+  <pre><code>{l:value,value,value,...}</code></pre>
+  <ul>
+    <li>Values: 0–100</li>
+    <li>Up to 20 points</li>
+    <li>Example: <code>{l:10,40,25,70,50,90}</code></li>
+  </ul>
+
+  <h3>Pie charts</h3>
+  <pre><code>{p:value}</code></pre>
+  <ul>
+    <li>Value: 0–100 (percentage)</li>
+    <li>Single value only</li>
+    <li>Example: <code>{p:75}</code></li>
+  </ul>
+
+  </section>
+
+  <section>
+  <h2>Best Practices</h2>
+
+  <h3>Font loading</h3>
+  <ul>
+    <li>Use <code>font-display: swap</code> to prevent invisible text while loading</li>
+    <li>Consider preloading: <code>&lt;link rel="preload" href="/fonts/Datatype.woff2" as="font" type="font/woff2" crossorigin&gt;</code></li>
+    <li>Host the font yourself for best performance (avoid external CDNs)</li>
+  </ul>
+
+  <h3>Enabling ligatures</h3>
+  <p>Datatype requires OpenType ligature features to work. Always include:</p>
+  <pre><code>font-feature-settings: 'liga' 1, 'calt' 1;
+font-variant-ligatures: common-ligatures contextual;</code></pre>
+
+  <h3>Letter spacing</h3>
+  <p>Set <code>letter-spacing: 0</code> to prevent gaps in charts. Letter spacing breaks the precise glyph alignment.</p>
+
+  </section>
+
+  <section>
+  <h2>Common Issues</h2>
+
+  <h3>Charts not rendering (showing raw syntax)</h3>
+  <p><strong>Causes:</strong></p>
+  <ul>
+    <li>Ligatures not enabled - add <code>font-feature-settings</code></li>
+    <li>Font not loaded - check browser DevTools Network tab</li>
+    <li>Wrong font-family applied to element</li>
+  </ul>
+
+  <h3>Gaps between chart elements</h3>
+  <p><strong>Solution:</strong> Set <code>letter-spacing: 0</code></p>
+
+  <h3>Variable axes not working in Safari</h3>
+  <p><strong>Solution:</strong> Use <code>font-weight</code> and <code>font-stretch</code> properties, OR include all axes in a single <code>font-variation-settings</code> declaration.</p>
+
+  </section>
+
+  <section>
+  <h2>Building Your Own Integration</h2>
+
+  <p>Want to auto-wrap chart syntax in your framework or CMS? Here's how:</p>
+
+  <h3>1. Pattern Matching</h3>
+  <p>Match chart syntax with this regex:</p>
+  <pre><code>/\{[blp]:\d+(?:,\d+)*\}/g</code></pre>
+
+  <h3>2. Wrapping in HTML</h3>
+  <p>Wrap matches in a span with the font applied:</p>
+  <pre><code>&lt;span class="datatype"&gt;{l:20,40,60}&lt;/span&gt;</code></pre>
+
+  <h3>3. Example: Vanilla JavaScript</h3>
+  <pre><code>function renderDatatype(text) {
+  const pattern = /\{[blp]:\d+(?:,\d+)*\}/g;
+  return text.replace(pattern, match =&gt;
+    `&lt;span class="datatype"&gt;${match}&lt;/span&gt;`
+  );
+}
+
+// Usage
+const input = "Sales {l:20,45,60,55,80} are up.";
+const output = renderDatatype(input);
+document.getElementById('output').innerHTML = output;</code></pre>
+
+  <h3>4. Example: Markdown-it Plugin</h3>
+  <pre><code>function datatypePlugin(md) {
+  const pattern = /\{[blp]:\d+(?:,\d+)*\}/g;
+
+  md.core.ruler.push('datatype', state =&gt; {
+    for (const token of state.tokens) {
+      if (token.type !== 'inline') continue;
+
+      for (const child of token.children) {
+        if (child.type === 'text' && pattern.test(child.content)) {
+          // Wrap chart syntax in HTML
+          child.content = child.content.replace(pattern,
+            match =&gt; `&lt;span class="datatype"&gt;${match}&lt;/span&gt;`
+          );
+          child.type = 'html_inline';
+        }
+      }
+    }
+  });
+}
+
+// Usage
+const md = require('markdown-it')();
+md.use(datatypePlugin);</code></pre>
+
+  <h3>5. Example: React Component</h3>
+  <pre><code>function Chart({ children }) {
+  const pattern = /\{[blp]:\d+(?:,\d+)*\}/g;
+
+  const parts = children.split(pattern);
+  const matches = children.match(pattern) || [];
+
+  return (
+    &lt;&gt;
+      {parts.map((text, i) =&gt; (
+        &lt;React.Fragment key={i}&gt;
+          {text}
+          {matches[i] && (
+            &lt;span className="datatype"&gt;{matches[i]}&lt;/span&gt;
+          )}
+        &lt;/React.Fragment&gt;
+      ))}
+    &lt;/&gt;
+  );
+}
+
+// Usage
+&lt;p&gt;
+  &lt;Chart&gt;Sales {'{l:20,45,60,55,80}'} are up.&lt;/Chart&gt;
+&lt;/p&gt;</code></pre>
+
+  <div class="note">
+    <p><strong>Note:</strong> In JSX/MDX, curly braces are special syntax. You'll need to escape chart expressions as strings or use a wrapper component.</p>
+  </div>
+
+  </section>
+
+</div>
+
+<!-- Footer -->
+<footer>
+  <div class="container">
+    <div class="footer-left">
+      <p><a href="index.html">Specimen</a></p>
+      <p><a href="https://github.com/franktisellano/datatype" target="_blank" rel="noopener noreferrer">View on GitHub</a></p>
+      <p><a href="mailto:frank@ft.io?subject=Contacting%20about%20Datatype">Contact</a></p>
+    </div>
+    <div class="footer-right">
+      <p>
+        Datatype is open source under the
+        <a href="https://openfontlicense.org/" target="_blank" rel="noopener noreferrer">SIL Open Font License</a>.
+      </p>
+      <p>Designed by <a href="https://www.ft.io">Frank Tisellano</a>, with help from AI.</p>
+    </div>
+  </div>
+</footer>
+
+<script>
+(function() {
+  const toggle = document.querySelector('.theme-toggle');
+  const html = document.documentElement;
+
+  function setTheme(dark) {
+    html.setAttribute('data-theme', dark ? 'dark' : 'light');
+    toggle.textContent = dark ? '☀' : '☾';
+    localStorage.setItem('theme', dark ? 'dark' : 'light');
+  }
+
+  // Sync icon with theme already applied by head script
+  toggle.textContent = html.getAttribute('data-theme') === 'dark' ? '☀' : '☾';
+
+  toggle.addEventListener('click', () => {
+    setTheme(html.getAttribute('data-theme') !== 'dark');
+  });
+})();
+</script>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-core.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/plugins/autoloader/prism-autoloader.min.js"></script>
+<script>
+// Auto-detect language for code blocks
+document.querySelectorAll('pre code').forEach(block => {
+  const code = block.textContent;
+
+  // Detect language based on content
+  if (code.includes('@font-face') || code.includes('font-family:') || code.includes('.chart {')) {
+    block.className = 'language-css';
+  } else if (code.includes('function ') || code.includes('const ') || code.includes('=>')) {
+    block.className = 'language-javascript';
+  } else if (code.includes('<link ') || code.includes('<p>') || code.includes('<span')) {
+    block.className = 'language-html markup';
+  } else if (code.includes('npm install') || code.includes('python ')) {
+    block.className = 'language-bash';
+  }
+});
+
+// Apply Prism highlighting
+if (window.Prism) {
+  Prism.highlightAll();
+}
+</script>
+</body>
+</html>

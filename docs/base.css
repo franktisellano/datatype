@@ -1,0 +1,273 @@
+/* Datatype Docs - Shared Base Styles */
+
+/* Font Loading */
+@font-face {
+  font-family: 'Datatype';
+  src: url('Datatype.woff2') format('woff2');
+  font-weight: 100 900;      /* wght axis range */
+  font-stretch: 0% 100%;     /* wdth axis range */
+  font-display: swap;
+}
+
+/* CSS Variables */
+:root {
+  --bg: #faf9f6;
+  --text: #2d2d2d;
+  --muted: #6b6b6b;
+  --light: #a0a0a0;
+  --border: #e0ddd8;
+  --accent: #0089ff;
+  --code-bg: #f0eeea;
+  --max-width: 800px;
+}
+
+[data-theme="dark"] {
+  --bg: #151515;
+  --text: #e0e0e0;
+  --muted: #a0a0a0;
+  --light: #707070;
+  --border: #333;
+  --accent: #0089ff;
+  --code-bg: #2a2a2a;
+}
+
+[data-theme="dark"] .inline-block {
+  background: #222;
+}
+
+[data-theme="dark"] .code-block {
+  background: #222;
+}
+
+/* Theme Toggle */
+.theme-toggle {
+  position: fixed;
+  bottom: 1.5rem;
+  left: 1.5rem;
+  width: 2.5rem;
+  height: 2.5rem;
+  border-radius: 50%;
+  border: 1px solid var(--border);
+  background: var(--bg);
+  color: var(--text);
+  font-size: 1.1rem;
+  cursor: pointer;
+  opacity: 0.8;
+  transition: opacity 0.2s, transform 0.2s;
+  z-index: 100;
+  line-height: 1;
+  padding: 0;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.theme-toggle:hover {
+  opacity: 1;
+  transform: scale(1.1);
+}
+
+/* Base Reset */
+::selection {
+  background: var(--text);
+  color: var(--bg);
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html, body {
+  overflow-x: hidden;
+}
+
+/* Base Body Styles */
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: 'Inter', system-ui, -apple-system, sans-serif;
+  font-size: 17px;
+  line-height: 1.7;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* Container */
+.container {
+  max-width: var(--max-width);
+  margin: 0 auto;
+  padding: 2rem;
+}
+
+/* Typography */
+h1 {
+  font-family: 'Zilla Slab', Georgia, serif;
+  font-size: 2.5rem;
+  font-weight: 400;
+  font-style: italic;
+  margin-bottom: 1rem;
+  color: var(--text);
+}
+
+h2 {
+  font-family: 'Zilla Slab', Georgia, serif;
+  font-size: 2.5rem;
+  font-weight: 400;
+  font-style: italic;
+  margin-top: 3rem;
+  margin-bottom: 1rem;
+  color: var(--text);
+}
+
+h3 {
+  font-size: 1.25rem;
+  font-weight: 600;
+  margin-top: 2rem;
+  margin-bottom: 1rem;
+}
+
+p {
+  margin-bottom: 1rem;
+  color: var(--muted);
+}
+
+section {
+  padding: 3rem 0;
+}
+
+section p {
+  color: var(--muted);
+  margin-bottom: 1.25rem;
+}
+
+a {
+  color: var(--muted);
+  text-decoration: underline;
+}
+
+a:hover {
+  color: var(--text);
+}
+
+/* Code Blocks */
+pre,
+pre[class*="language-"] {
+  background: var(--code-bg);
+  padding: 1rem;
+  border-radius: 6px;
+  overflow-x: auto;
+  margin-bottom: 1.5rem;
+  font-family: 'Fira Code', monospace !important;
+  font-size: 0.875rem !important;
+  line-height: 1.5;
+}
+
+code,
+code[class*="language-"] {
+  font-family: 'Fira Code', monospace !important;
+  background: var(--code-bg);
+  padding: 0.15rem 0.4rem;
+  border-radius: 3px;
+  font-size: 0.875rem !important;
+}
+
+pre code {
+  background: none;
+  padding: 0;
+}
+
+/* Lists */
+ul, ol {
+  margin-bottom: 1rem;
+  margin-left: 1.5rem;
+}
+
+li {
+  margin-bottom: 0.5rem;
+}
+
+/* Tables */
+table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 1.5rem 0;
+}
+
+th, td {
+  padding: 0.75rem;
+  text-align: left;
+  border-bottom: 1px solid var(--border);
+}
+
+th {
+  font-weight: 600;
+  background: var(--code-bg);
+}
+
+/* Utility Classes */
+.lead {
+  font-size: 1.125rem;
+  color: var(--muted);
+  margin-bottom: 2rem;
+}
+
+.back-link {
+  margin-bottom: 2rem;
+  display: inline-block;
+}
+
+.note {
+  background: #fff7e6;
+  border-left: 4px solid #ffc107;
+  padding: 1rem;
+  margin: 1.5rem 0;
+}
+
+.note p:last-child {
+  margin-bottom: 0;
+}
+
+/* Chart Typography - Ensures ligatures work */
+.demo, .rendered, .axes-demo, .sample, .d, .chart {
+  font-feature-settings: 'liga' 1, 'calt' 1;
+  -webkit-font-feature-settings: 'liga' 1, 'calt' 1;
+  font-variant-ligatures: common-ligatures contextual;
+  letter-spacing: 0;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Footer */
+footer {
+  padding: 3rem 2rem;
+  color: var(--light);
+  font-size: 0.85rem;
+}
+
+footer .container {
+  max-width: none;
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 2rem;
+}
+
+footer .footer-left {
+  text-align: left;
+}
+
+footer .footer-right {
+  text-align: right;
+}
+
+footer p {
+  margin-bottom: 0;
+}
+
+footer a {
+  color: var(--muted);
+  text-decoration: none;
+}
+
+footer a:hover {
+  color: var(--text);
+}

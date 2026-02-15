@@ -1,0 +1,845 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Datatype — variable font that turns text into charts</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="preload" href="Datatype.woff2" as="font" type="font/woff2" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Zilla+Slab:ital,wght@0,400;0,700;1,300;1,400;1,500;1,700&family=Inter:wght@400;500;600&family=Fira+Code&family=Merriweather&family=IBM+Plex+Sans&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="base.css">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-tomorrow.min.css">
+<script>
+  // Apply theme before render to prevent flash
+  (function() {
+    var s = localStorage.getItem('theme');
+    var dark = s ? s === 'dark' : window.matchMedia('(prefers-color-scheme: dark)').matches;
+    if (dark) document.documentElement.setAttribute('data-theme', 'dark');
+  })();
+</script>
+<style>
+  /* Page-specific styles for specimen page */
+
+  /* Hide everything until Datatype font loads */
+  body { opacity: 0; transition: opacity 0.4s ease; }
+  body.fonts-loaded { opacity: 1; }
+
+  /* Charts fade in */
+  .demo, .rendered, .axes-demo, .sample, .d,
+  .syntax-card, .inline-block, .stock-table {
+    opacity: 0;
+    transform: translateY(8px);
+    transition: opacity 0.6s ease, transform 0.6s ease;
+  }
+  body.fonts-loaded .demo,
+  body.fonts-loaded .rendered,
+  body.fonts-loaded .axes-demo,
+  body.fonts-loaded .sample,
+  body.fonts-loaded .d,
+  body.fonts-loaded .syntax-card,
+  body.fonts-loaded .inline-block,
+  body.fonts-loaded .stock-table {
+    opacity: 1;
+    transform: translateY(0);
+  }
+
+  body {
+    padding-top: 6rem;
+  }
+
+  /* Hero */
+  .hero {
+    padding: 0 0 4rem;
+    text-align: center;
+    overflow: hidden;
+  }
+  .hero h1 {
+    font-family: 'Zilla Slab', Georgia, serif;
+    font-size: 10vw;
+    font-weight: 300;
+    font-style: italic;
+    text-transform: uppercase;
+    letter-spacing: -0.02em;
+    line-height: 0.8;
+    margin: 0;
+    padding: 0;
+    white-space: nowrap;
+    display: block;
+    text-align: center;
+    margin-left: 0;
+  }
+  .hero .tagline {
+    font-family: 'Zilla Slab', Georgia, serif;
+    font-style: italic;
+    font-size: 3vw;
+    color: var(--muted);
+    margin-bottom: 1rem;
+    font-weight: 400;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    white-space: nowrap;
+  }
+  .hero .demo {
+    font-family: 'Datatype', 'Inter', sans-serif;
+    line-height: 1.8;
+    color: var(--text);
+    font-variation-settings: 'wdth' 60;
+    white-space: nowrap;
+    padding-bottom: 1rem;
+  }
+  .hero .demo-label {
+    font-size: 0.75rem;
+    color: var(--light);
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    margin-top: 1rem;
+  }
+
+  /* Sections */
+  section {
+    padding: 3rem 0;
+    /* border-top: 1px solid var(--border); */
+  }
+  section h2 {
+    font-family: 'Zilla Slab', Georgia, serif;
+    font-size: 3rem;
+    font-weight: 400;
+    font-style: italic;
+    margin-bottom: 1rem;
+    color: var(--text);
+  }
+  section p {
+    color: var(--muted);
+    margin-bottom: 1.25rem;
+  }
+
+  /* Syntax showcase */
+  .syntax-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 1.5rem;
+    margin: 1.5rem 0;
+  }
+  .syntax-card {
+    text-align: center;
+  }
+  .syntax-card .rendered {
+    font-family: 'Datatype', 'Inter', sans-serif;
+    font-size: 2.5rem;
+    line-height: 1.8;
+    margin-bottom: 0.5rem;
+  }
+  .syntax-card code {
+    font-family: 'Fira Code', monospace;
+    font-size: 0.8rem;
+    color: var(--muted);
+    background: var(--code-bg);
+    padding: 3px 8px;
+    border-radius: 4px;
+  }
+  .syntax-card .type-label {
+    font-size: 0.7rem;
+    color: var(--light);
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    margin-top: 0.5rem;
+  }
+
+  /* Variable axes */
+  .axes-controls {
+    display: flex;
+    gap: 0;
+    margin: 1.5rem 0 0;
+    flex-wrap: wrap;
+    border: 1px solid var(--border);
+    border-bottom: none;
+  }
+  .axis-control {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+    padding: 1rem 1.5rem;
+    border-right: 1px solid var(--border);
+  }
+  .axis-control:last-child {
+    border-right: none;
+  }
+  .axis-control .control-row {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+  }
+  .axis-control label {
+    font-size: 0.8rem;
+    font-weight: 500;
+    color: var(--muted);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+  }
+  .axis-control input[type="range"] {
+    width: 180px;
+    accent-color: var(--accent);
+  }
+  .axis-control .val {
+    font-family: 'Fira Code', monospace;
+    font-size: 0.8rem;
+    color: var(--accent);
+    min-width: 28px;
+    text-align: right;
+  }
+  .axis-control select {
+    font-family: 'Fira Code', monospace;
+    font-size: 0.8rem;
+    color: var(--text);
+    background: var(--bg);
+    border: 1px solid var(--border);
+    padding: 4px 8px;
+    cursor: pointer;
+  }
+  .axes-demo {
+    font-family: 'Datatype', 'Inter', sans-serif;
+    font-size: 1.75rem;
+    line-height: 2.2;
+    padding: 1.5rem;
+    font-stretch: var(--axes-wdth);
+    font-weight: var(--axes-wght);
+    text-align: center;
+    overflow-x: auto;
+    white-space: nowrap;
+    border: 1px solid var(--border);
+  }
+
+  /* Size comparison */
+  .size-row {
+    display: flex;
+    align-items: baseline;
+    gap: 1rem;
+    padding: 0.4rem 0;
+    /* border-bottom: 1px solid var(--border); */
+  }
+  /* .size-row:last-child { border-bottom: none; } */
+  .size-row .sz {
+    font-family: 'Fira Code', monospace;
+    font-size: 0.7rem;
+    color: var(--light);
+    min-width: 36px;
+    text-align: right;
+  }
+  .size-row .sample {
+    font-family: 'Datatype', 'Inter', sans-serif;
+    white-space: nowrap;
+  }
+  #sizeComparison {
+    overflow-x: auto;
+  }
+
+  /* Inline usage */
+  .inline-block {
+    margin: 1.5rem 0;
+    padding: 1.5rem;
+    background: #fff;
+    border: 1px solid var(--border);
+    border-radius: 6px;
+  }
+  .inline-block .font-label {
+    font-size: 0.7rem;
+    color: var(--light);
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    margin-bottom: 0.75rem;
+  }
+  .inline-block .prose {
+    font-size: 1.05rem;
+    line-height: 2;
+    color: var(--text);
+  }
+  .inline-block .prose .d {
+    font-family: 'Datatype', sans-serif;
+  }
+
+  .inline-block.serif-block .prose {
+    font-family: 'Merriweather', Georgia, serif;
+  }
+  .inline-block.sans-block .prose {
+    font-family: 'IBM Plex Sans', 'Inter', sans-serif;
+  }
+  .inline-block.mono-block .prose {
+    font-family: 'Fira Code', monospace;
+    font-size: 0.95rem;
+  }
+
+  /* Stock table */
+  .stock-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 1.5rem 0;
+    font-family: 'Inter', system-ui, sans-serif;
+    font-size: 0.9rem;
+  }
+  .stock-table th {
+    font-size: 0.7rem;
+    font-weight: 500;
+    color: var(--light);
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    text-align: left;
+    padding: 0 0 0.75rem;
+    /* border-bottom: 1px solid var(--border); */
+  }
+  .stock-table th:last-child,
+  .stock-table td:last-child { text-align: right; }
+  .stock-table th:nth-child(3),
+  .stock-table td:nth-child(3) { text-align: center; }
+  .stock-table th:nth-child(4),
+  .stock-table td:nth-child(4) { text-align: right; }
+  .stock-table td {
+    padding: 0.65rem 0;
+    /* border-bottom: 1px solid var(--border); */
+    vertical-align: middle;
+  }
+  /* .stock-table tr:last-child td { border-bottom: none; } */
+  .stock-table { margin-bottom: 3.5rem; }
+  .stock-table .ticker {
+    font-weight: 600;
+    letter-spacing: 0.02em;
+  }
+  .stock-table .company {
+    color: var(--muted);
+    font-size: 0.8rem;
+    margin-left: 0.5rem;
+  }
+  .stock-table .spark {
+    font-family: 'Datatype', sans-serif;
+    font-size: 1.4rem;
+    font-feature-settings: 'liga' 1, 'calt' 1;
+    font-variant-ligatures: common-ligatures contextual;
+    letter-spacing: 0;
+    line-height: 1;
+  }
+  .stock-table .price {
+    font-variant-numeric: tabular-nums;
+    font-weight: 500;
+  }
+  .stock-table .change {
+    font-variant-numeric: tabular-nums;
+    font-size: 0.8rem;
+    font-weight: 500;
+  }
+  .stock-table .spark.up { color: #2a9d4e; }
+  .stock-table .spark.down { color: #d64040; }
+  .stock-table .change.up { color: #2a9d4e; }
+  .stock-table .change.down { color: #d64040; }
+
+  /* Code snippet */
+  .code-block {
+    background: #2d2d2d;
+    color: #e0e0e0;
+    font-family: 'Fira Code', monospace;
+    font-size: 0.85rem;
+    line-height: 1.7;
+    padding: 1.5rem 2rem;
+    border-radius: 6px;
+    overflow-x: auto;
+    white-space: pre;
+    margin: 1rem 0;
+  }
+  .code-block .comment { color: #7a7a7a; }
+  .code-block .prop { color: #f0c674; }
+  .code-block .val { color: #b5bd68; }
+  .code-block .sel { color: #81a2be; }
+
+  /* Syntax reference */
+  .syntax-ref {
+    margin: 2.5rem 0 1.5rem;
+  }
+  .syntax-ref h3 {
+    font-family: 'Zilla Slab', Georgia, serif;
+    font-size: 1.4rem;
+    font-weight: 400;
+    font-style: italic;
+    margin-bottom: 0.25rem;
+    color: var(--text);
+  }
+  .syntax-ref h3 code {
+    font-family: 'Fira Code', monospace;
+    font-size: 0.85rem;
+    font-style: normal;
+    color: var(--muted);
+    background: var(--code-bg);
+    padding: 2px 7px;
+    border-radius: 4px;
+    margin-left: 0.4rem;
+    position: relative;
+    top: -1px;
+  }
+  .syntax-ref p {
+    font-size: 0.95rem;
+  }
+  .syntax-ref .ref-example {
+    margin-top: 0.75rem;
+    text-align: center;
+  }
+  .syntax-ref .ref-example .rendered {
+    font-family: 'Datatype', 'Inter', sans-serif;
+    font-size: 2.5rem;
+    line-height: 1.8;
+    margin-bottom: 0.4rem;
+  }
+  .syntax-ref .ref-example code {
+    font-family: 'Fira Code', monospace;
+    font-size: 0.8rem;
+    color: var(--muted);
+    background: var(--code-bg);
+    padding: 3px 8px;
+    border-radius: 4px;
+  }
+  .syntax-ref .ref-details {
+    font-size: 0.8rem;
+    color: var(--light);
+    margin-top: 0.5rem;
+    text-align: center;
+  }
+
+  /* Footer */
+  footer {
+    padding: 3rem 2rem;
+    /* border-top: 1px solid var(--border); */
+    color: var(--light);
+    font-size: 0.85rem;
+  }
+  footer .container {
+    max-width: none;
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 2rem;
+  }
+  footer .footer-left {
+    text-align: left;
+  }
+  footer .footer-right {
+    text-align: right;
+  }
+  footer a {
+    color: var(--muted);
+    text-decoration: none;
+    /* border-bottom: 1px solid var(--border); */
+  }
+  footer a:hover {
+    color: var(--text);
+    border-color: var(--text);
+  }
+
+  @media (max-width: 600px) {
+    .hero h1 { font-size: 10vw; }
+    .syntax-grid { grid-template-columns: 1fr; }
+    .axes-controls { flex-direction: column; gap: 1rem; }
+    .container { padding: 0 1.25rem; }
+    .stock-table .company { display: none; }
+    section h2 { font-size: 2rem; }
+    footer .container {
+      flex-direction: column;
+      align-items: flex-start;
+    }
+    footer .footer-right {
+      text-align: left;
+    }
+  }
+</style>
+</head>
+<body>
+
+<!-- Hero -->
+<div class="hero">
+  <h1>Datatype</h1>
+  <p class="tagline">A variable font that turns text into charts.</p>
+  <div class="demo">{b:20,55,40,80,65}&nbsp;&nbsp;&nbsp;{l:10,40,25,70,50,90}&nbsp;&nbsp;&nbsp;{p:73}&nbsp;&nbsp;&nbsp;{b:85,30,60,10,45}&nbsp;&nbsp;&nbsp;{l:50,20,80,35,65,10}&nbsp;&nbsp;&nbsp;{p:41}</div>
+</div>
+
+<!-- What it does -->
+<section>
+  <div class="container">
+    <h2>Datatype is data as type</h2>
+    <p>
+      Datatype is an OpenType variable font that turns simple text expressions into
+      inline charts. No JavaScript, no images, no rendering library &mdash; just type the
+      syntax and Datatype's ligature substitution does the rest.
+    </p>
+    <div class="syntax-grid">
+      <div class="syntax-card">
+        <div class="rendered">{b:30,70,50,90}</div>
+        <code>{b:30,70,50,90}</code>
+        <div class="type-label">Bar chart</div>
+      </div>
+      <div class="syntax-card">
+        <div class="rendered">{l:10,50,30,80,20}</div>
+        <code>{l:10,50,30,80,20}</code>
+        <div class="type-label">Sparkline</div>
+      </div>
+      <div class="syntax-card">
+        <div class="rendered">{p:65}</div>
+        <code>{p:65}</code>
+        <div class="type-label">Pie chart</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Variable Axes -->
+<section>
+  <div class="container">
+    <h2>Datatype is a variable font</h2>
+    <p>
+      Two axes give you control over chart density and weight.
+      Drag the sliders to see charts respond in real time.
+    </p>
+    <div class="axes-controls">
+      <div class="axis-control">
+        <label>Width</label>
+        <div class="control-row">
+          <input type="range" id="wdthSlider" min="0" max="100" value="50" step="1">
+          <span class="val" id="wdthVal">50</span>
+        </div>
+      </div>
+      <div class="axis-control">
+        <label>Weight</label>
+        <div class="control-row">
+          <input type="range" id="thckSlider" min="100" max="900" value="400" step="1">
+          <span class="val" id="thckVal">400</span>
+        </div>
+      </div>
+      <div class="axis-control">
+        <label>Size</label>
+        <div class="control-row">
+          <select id="axesSizeSelect">
+            <option value="8">8px</option>
+            <option value="10">10px</option>
+            <option value="12">12px</option>
+            <option value="14">14px</option>
+            <option value="18">18px</option>
+            <option value="24">24px</option>
+            <option value="28">28px</option>
+            <option value="36">36px</option>
+            <option value="48" selected>48px</option>
+            <option value="64">64px</option>
+            <option value="120">120px</option>
+          </select>
+        </div>
+      </div>
+    </div>
+    <div class="axes-demo" id="axesDemo" style="--axes-wdth: 50%; --axes-wght: 400; font-size: 48px;">
+      {b:15,45,80,30,60,90,20} &nbsp; {l:5,35,20,70,45,85,30,60} &nbsp; {p:52}
+    </div>
+  </div>
+</section>
+
+<!-- Size Comparison -->
+<section>
+  <div class="container">
+    <h2>Datatype at different sizes</h2>
+    <p>The same expressions rendered from 14px to 64px.</p>
+    <div id="sizeComparison">
+      <div class="size-row">
+        <span class="sz">14px</span>
+        <span class="sample" style="font-size:14px">{b:30,70,20,90} &nbsp; {l:20,50,30,80,10} &nbsp; {p:65}</span>
+      </div>
+      <div class="size-row">
+        <span class="sz">18px</span>
+        <span class="sample" style="font-size:18px">{b:30,70,20,90} &nbsp; {l:20,50,30,80,10} &nbsp; {p:65}</span>
+      </div>
+      <div class="size-row">
+        <span class="sz">24px</span>
+        <span class="sample" style="font-size:24px">{b:30,70,20,90} &nbsp; {l:20,50,30,80,10} &nbsp; {p:65}</span>
+      </div>
+      <div class="size-row">
+        <span class="sz">36px</span>
+        <span class="sample" style="font-size:36px">{b:30,70,20,90} &nbsp; {l:20,50,30,80,10} &nbsp; {p:65}</span>
+      </div>
+      <div class="size-row">
+        <span class="sz">48px</span>
+        <span class="sample" style="font-size:48px">{b:30,70,20,90} &nbsp; {l:20,50,30,80,10} &nbsp; {p:65}</span>
+      </div>
+      <div class="size-row">
+        <span class="sz">64px</span>
+        <span class="sample" style="font-size:64px">{b:30,70,20,90} &nbsp; {l:20,50,30,80,10} &nbsp; {p:65}</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- In Context -->
+<section>
+  <div class="container">
+    <h2>Datatype in context</h2>
+    <p>Datatype charts work anywhere text does &mdash; tables, dashboards, reports. Here's a stock watchlist with sparklines rendered entirely in Datatype.</p>
+
+    <table class="stock-table">
+      <thead>
+        <tr>
+          <th>Stock</th>
+          <th>30d trend</th>
+          <th>Price</th>
+          <th>Change</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><span class="ticker">AAPL</span><span class="company">Apple</span></td>
+          <td><span class="spark down">{l:40,25,1,0,34,73,93,100,85,26}</span></td>
+          <td class="price">$255.78</td>
+          <td><span class="change down">-2.27%</span></td>
+        </tr>
+        <tr>
+          <td><span class="ticker">MSFT</span><span class="company">Microsoft</span></td>
+          <td><span class="spark down">{l:86,86,75,100,52,39,0,26,14,10}</span></td>
+          <td class="price">$401.32</td>
+          <td><span class="change down">-0.13%</span></td>
+        </tr>
+        <tr>
+          <td><span class="ticker">NVDA</span><span class="company">Nvidia</span></td>
+          <td><span class="spark down">{l:55,70,63,71,100,67,0,88,88,53}</span></td>
+          <td class="price">$182.81</td>
+          <td><span class="change down">-2.21%</span></td>
+        </tr>
+        <tr>
+          <td><span class="ticker">TSLA</span><span class="company">Tesla</span></td>
+          <td><span class="spark up">{l:81,77,100,73,37,47,0,39,60,39}</span></td>
+          <td class="price">$417.44</td>
+          <td><span class="change up">+0.09%</span></td>
+        </tr>
+        <tr>
+          <td><span class="ticker">AMZN</span><span class="company">Amazon</span></td>
+          <td><span class="spark down">{l:86,91,81,90,97,100,54,23,12,0}</span></td>
+          <td class="price">$198.79</td>
+          <td><span class="change down">-0.41%</span></td>
+        </tr>
+      </tbody>
+    </table>
+
+    <p>Charts sit naturally within running prose, matching the surrounding typeface's metrics.</p>
+
+    <div class="inline-block serif-block">
+      <div class="font-label">Merriweather (Serif)</div>
+      <div class="prose">
+        Revenue grew steadily through Q3 <span class="d">{l:15,28,40,52,63,78,88,95,74,58}</span> before
+        a seasonal dip. Market share <span class="d">{p:34}</span> held firm against competitors,
+        and our product mix <span class="d">{b:60,45,80,30}</span> shifted toward higher margins.
+      </div>
+    </div>
+
+    <div class="inline-block sans-block">
+      <div class="font-label">IBM Plex Sans (Sans-serif)</div>
+      <div class="prose">
+        The patient's heart rate <span class="d">{l:68,82,55,90,42,78,60,85}</span> remained within
+        normal range. Blood oxygen <span class="d">{p:97}</span> was excellent, and the weekly
+        activity breakdown <span class="d">{b:25,40,55,75,90}</span> showed consistent improvement.
+      </div>
+    </div>
+
+    <div class="inline-block mono-block">
+      <div class="font-label">Fira Code (Monospace)</div>
+      <div class="prose">
+        cpu_load <span class="d">{l:15,45,90,30,75,20,85,95}</span> spiking
+        mem_used <span class="d">{p:78}</span>
+        req/s by endpoint <span class="d">{b:90,35,70,15,60}</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- How to Use -->
+<section>
+  <div class="container">
+    <h2>How to use Datatype</h2>
+    <p>Add Datatype to your CSS, then just type chart expressions in your HTML.</p>
+
+    <div class="code-block"><span class="comment">/* Load the font */</span>
+<span class="sel">@font-face</span> {
+  <span class="prop">font-family</span>: <span class="val">'Datatype'</span>;
+  <span class="prop">src</span>: <span class="val">url('Datatype.woff2') format('woff2')</span>;
+  <span class="prop">font-display</span>: <span class="val">swap</span>;
+}
+
+<span class="comment">/* Use it on chart expressions */</span>
+<span class="sel">.chart</span> {
+  <span class="prop">font-family</span>: <span class="val">'Datatype', sans-serif</span>;
+  <span class="comment">/* Optional: adjust axes */</span>
+  <span class="prop">font-variation-settings</span>: <span class="val">'wdth' 15</span>;
+  <span class="prop">font-weight</span>: <span class="val">400</span>;
+}</div>
+
+    <div class="code-block"><span class="comment">&lt;!-- Then just type --&gt;</span>
+Sales <span class="sel">&lt;span class="chart"&gt;</span>{l:20,40,70,50,90}<span class="sel">&lt;/span&gt;</span> are up.
+Budget <span class="sel">&lt;span class="chart"&gt;</span>{p:73}<span class="sel">&lt;/span&gt;</span> utilized.
+Results <span class="sel">&lt;span class="chart"&gt;</span>{b:30,70,20,90}<span class="sel">&lt;/span&gt;</span> by quarter.
+</div>
+
+    <p>It's easy to use Datatype on the web. See the <a href="integrations.html" style="color:var(--muted);">integration guide</a> for setup instructions.</p>
+
+    <!-- <p>The <a href="integrations.html" style="color:var(--muted);border-bottom:1px solid var(--border)">datatype-remark plugin</a> makes Datatype chart syntax work out of the box in Next.js, Astro, Docusaurus, and more.</p> -->
+
+    <div class="syntax-ref">
+      <h3>Bar charts <code>{b:values}</code></h3>
+      <p>Comma-separated values, each 0&ndash;100. Up to 20 bars.</p>
+      <div class="ref-example">
+        <div class="rendered">{b:15,45,80,30,60}</div>
+        <code>{b:15,45,80,30,60}</code>
+        <div class="ref-details">5 bars &mdash; values set bar height as a percentage</div>
+      </div>
+    </div>
+
+    <div class="syntax-ref">
+      <h3>Sparklines <code>{l:values}</code></h3>
+      <p>Comma-separated values, each 0&ndash;100. Up to 20 points.</p>
+      <div class="ref-example">
+        <div class="rendered">{l:10,40,25,70,50,90,35}</div>
+        <code>{l:10,40,25,70,50,90,35}</code>
+        <div class="ref-details">7 points &mdash; values set point height as a percentage</div>
+      </div>
+    </div>
+
+    <div class="syntax-ref">
+      <h3>Pie charts <code>{p:value}</code></h3>
+      <p>A single value, 0&ndash;100, representing the percentage filled.</p>
+      <div class="ref-example">
+        <div class="rendered">{p:62}</div>
+        <code>{p:62}</code>
+        <div class="ref-details">62% filled</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Footer -->
+<footer>
+  <div class="container">
+    <div class="footer-left">
+      <p><a href="https://github.com/franktisellano/datatype/releases" target="_blank" rel="noopener noreferrer">Download</a></p>
+      <p><a href="integrations.html">Integration guide</a></p>
+      <p><a href="https://github.com/franktisellano/datatype" target="_blank" rel="noopener noreferrer">View on GitHub</a></p>
+      <p><a href="mailto:frank@ft.io?subject=Contacting%20about%20Datatype">Contact</a></p>
+    </div>
+    <div class="footer-right">
+      <p>
+        Datatype is open source under the
+        <a href="https://openfontlicense.org/" target="_blank" rel="noopener noreferrer">SIL Open Font License</a>.
+      </p>
+      <p>Designed by <a href="https://www.ft.io">Frank Tisellano</a>, with help from AI.</p>
+    </div>
+  </div>
+</footer>
+
+<button class="theme-toggle" aria-label="Toggle dark mode">☾</button>
+
+<script>
+(function() {
+  // Theme toggle
+  const toggle = document.querySelector('.theme-toggle');
+  const html = document.documentElement;
+
+  function setTheme(dark) {
+    html.setAttribute('data-theme', dark ? 'dark' : 'light');
+    toggle.textContent = dark ? '☀' : '☾';
+    localStorage.setItem('theme', dark ? 'dark' : 'light');
+  }
+
+  // Sync icon with theme already applied by head script
+  toggle.textContent = html.getAttribute('data-theme') === 'dark' ? '☀' : '☾';
+
+  toggle.addEventListener('click', () => {
+    setTheme(html.getAttribute('data-theme') !== 'dark');
+  });
+  // Fit text edge-to-edge
+  const h1 = document.querySelector('.hero h1');
+  const tagline = document.querySelector('.hero .tagline');
+  const demo = document.querySelector('.hero .demo');
+
+  function fitText(el, targetWidth) {
+    el.style.display = 'inline-block';
+    el.style.fontSize = '100px';
+    const naturalWidth = el.scrollWidth;
+    el.style.display = '';
+    el.style.fontSize = (targetWidth / naturalWidth) * 100 + 'px';
+  }
+
+  function fitAll() {
+    const vw = document.documentElement.clientWidth;
+    const sideInset = vw * 0.05;
+    const topInset = vw * 0.03;
+    const innerWidth = vw - sideInset * 2;
+    fitText(h1, innerWidth);
+    fitText(tagline, innerWidth);
+    fitText(demo, innerWidth);
+    const hero = document.querySelector('.hero');
+    hero.style.paddingTop = topInset + 'px';
+    hero.style.paddingLeft = sideInset + 'px';
+    hero.style.paddingRight = sideInset + 'px';
+  }
+
+  // Wait for Datatype font, then reveal page
+  function onFontsReady() {
+    fitAll();
+    document.body.classList.add('fonts-loaded');
+  }
+
+  if (document.fonts) {
+    document.fonts.load('1em Datatype').then(onFontsReady);
+  } else {
+    window.addEventListener('load', onFontsReady);
+  }
+  window.addEventListener('resize', fitAll);
+
+  // Variable axes sliders
+  const wdthSlider = document.getElementById('wdthSlider');
+  const thckSlider = document.getElementById('thckSlider');
+  const wdthVal = document.getElementById('wdthVal');
+  const thckVal = document.getElementById('thckVal');
+  const axesDemo = document.getElementById('axesDemo');
+
+  function updateAxes() {
+    const w = wdthSlider.value;
+    const t = thckSlider.value;
+    wdthVal.textContent = w;
+    thckVal.textContent = t;
+    // Use standard CSS properties (font-stretch/font-weight) instead of font-variation-settings
+    axesDemo.style.setProperty('--axes-wdth', `${w}%`);
+    axesDemo.style.setProperty('--axes-wght', t);
+  }
+
+  wdthSlider.addEventListener('input', updateAxes);
+  thckSlider.addEventListener('input', updateAxes);
+
+  const axesSizeSelect = document.getElementById('axesSizeSelect');
+  axesSizeSelect.addEventListener('change', () => {
+    axesDemo.style.fontSize = axesSizeSelect.value + 'px';
+  });
+})();
+</script>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-core.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/plugins/autoloader/prism-autoloader.min.js"></script>
+<script>
+// Auto-detect language for code blocks
+document.querySelectorAll('pre code').forEach(block => {
+  const code = block.textContent;
+
+  // Detect language based on content
+  if (code.includes('@font-face') || code.includes('font-family:') || code.includes('.chart {')) {
+    block.className = 'language-css';
+  } else if (code.includes('function ') || code.includes('const ') || code.includes('=>')) {
+    block.className = 'language-javascript';
+  } else if (code.includes('<link ') || code.includes('<p>') || code.includes('<span')) {
+    block.className = 'language-markup';
+  } else if (code.includes('npm install') || code.includes('python ')) {
+    block.className = 'language-bash';
+  }
+});
+
+// Apply Prism highlighting
+if (window.Prism) {
+  Prism.highlightAll();
+}
+</script>
+</body>
+</html>
