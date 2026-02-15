@@ -20,3 +20,13 @@ nohup.out
 
 # macOS
 .DS_Store
+
+# OG image generation (keep og.png committed for GitHub Pages)
+docs/og-template.html
+scripts/generate_og_image.py
+
+# Fontbakery validation reports
+fontbakery*.txt
+
+# Google Fonts submission working directory
+google-fonts-submission/

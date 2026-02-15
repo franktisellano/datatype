@@ -2,6 +2,12 @@
 
 from dataclasses import dataclass
 
+# Font version - follows semantic versioning
+FONT_VERSION = "1.100"
+FONT_VERSION_MAJOR = 1
+FONT_VERSION_MINOR = 1
+FONT_VERSION_PATCH = 0
+
 # Font metrics
 UPM = 1000          # Units per em
 ASCENDER = 800
@@ -63,33 +69,41 @@ SCALES = [
 ]
 
 # Variable font axis masters: (wdth, wght) → FontParams overrides
-# wdth range: 0-100 (0=narrowest, 100=widest)
+# wdth range: 50-150 (OpenType spec compliant: >0, default=100)
 # wght range: 100-900 (standard weight axis)
 AXIS_MASTERS = [
     # (wdth, wght, bar_width, seg_width, point_width, sep_width, end_width, line_thickness, bar_fill, pie_stroke)
-    (50,  400, 405, 450, 36,  0,  90,  65,  0.85,   60),   # Default (Regular) - no separators, bars at 85%
-    (0,   400, 90,  100, 8,   0,  20,  65,  0.85,   60),   # wdth min
-    (100, 400, 720, 800, 64,  0,  160, 65,  0.85,   60),   # wdth max
-    (50,  100, 405, 450, 36,  0,  90,  34,  0.15,   30),   # wght min (Thin) - bars at 15%
-    (0,   100, 90,  100, 8,   0,  20,  34,  0.15,   30),   # wdth min + wght min
-    (100, 100, 720, 800, 64,  0,  160, 34,  0.15,   30),   # wdth max + wght min
-    (50,  900, 405, 450, 36,  0,  90,  130, 1.0,    120),  # wght max (Black) - bars at 100%, touching
-    (0,   900, 90,  100, 8,   0,  20,  130, 1.0,    120),  # wdth min + wght max
-    (100, 900, 720, 800, 64,  0,  160, 130, 1.0,    120),  # wdth max + wght max
+    (100, 400, 405, 450, 36,  0,  90,  65,  0.85,   60),   # Default (Regular) - no separators, bars at 85%
+    (50,  400, 90,  100, 8,   0,  20,  65,  0.85,   60),   # wdth min
+    (150, 400, 720, 800, 64,  0,  160, 65,  0.85,   60),   # wdth max
+    (100, 100, 405, 450, 36,  0,  90,  34,  0.15,   30),   # wght min (Thin) - bars at 15%
+    (50,  100, 90,  100, 8,   0,  20,  34,  0.15,   30),   # wdth min + wght min
+    (150, 100, 720, 800, 64,  0,  160, 34,  0.15,   30),   # wdth max + wght min
+    (100, 900, 405, 450, 36,  0,  90,  130, 1.0,    120),  # wght max (Black) - bars at 100%, touching
+    (50,  900, 90,  100, 8,   0,  20,  130, 1.0,    120),  # wdth min + wght max
+    (150, 900, 720, 800, 64,  0,  160, 130, 1.0,    120),  # wdth max + wght max
 ]
 
 # Named instances: (style_name, wdth, wght)
-# Core Set (4) - Essential combinations
-# Extended Set (+4) - Additional useful combinations
+# Google Fonts standard weight instances (at normal width=100) are required
+# Custom width combinations showcase the variable axes
 NAMED_INSTANCES = [
-    # Core Set
-    ("LightCompact",    25,  300),  # Subtle, space-efficient charts
-    ("Regular",         50,  400),  # Default, balanced
-    ("MediumWide",      75,  500),  # Prominent, readable charts
-    ("Bold",            50,  700),  # Strong emphasis
-    # Extended Set
-    ("ThinNarrow",      0,   100),  # Ultra-minimal sparklines
-    ("LightWide",       100, 300),  # Maximum breathing room
-    ("SemiBoldCompact", 25,  600),  # Dense dashboards
-    ("BlackWide",       100, 900),  # Maximum impact
+    # Standard weight instances (required by Google Fonts at wdth=100)
+    ("Thin",            100, 100),  # Standard thin
+    ("ExtraLight",      100, 200),  # Standard extra light
+    ("Light",           100, 300),  # Standard light
+    ("Regular",         100, 400),  # Default, balanced
+    ("Medium",          100, 500),  # Standard medium
+    ("SemiBold",        100, 600),  # Standard semi-bold
+    ("Bold",            100, 700),  # Strong emphasis
+    ("ExtraBold",       100, 800),  # Standard extra bold
+    ("Black",           100, 900),  # Standard black
+
+    # Custom width combinations (showcase variable width axis)
+    ("ThinNarrow",      50,  100),  # Ultra-minimal sparklines
+    ("LightCompact",    75,  300),  # Subtle, space-efficient charts
+    ("SemiBoldCompact", 75,  600),  # Dense dashboards
+    ("LightWide",       150, 300),  # Maximum breathing room
+    ("MediumWide",      125, 500),  # Prominent, readable charts
+    ("BlackWide",       150, 900),  # Maximum impact
 ]

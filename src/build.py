@@ -80,12 +80,12 @@ def build_dev():
     print("=" * 50)
 
     axes_config = [
-        ("wdth", "Width", 0, 50, 100),
+        ("wdth", "Width", 50, 100, 150),
         ("wght", "Weight", 100, 400, 900),
     ]
 
     # Default wdth for named instances
-    default_wdth = 50
+    default_wdth = 100
 
     # Build only the first scale (default)
     suffix, max_value = SCALES[0]
@@ -133,7 +133,7 @@ def build_dev():
     # Export variable font
     basename = f"{FAMILY_NAME}{suffix}"
     print(f"  Exporting {basename}...")
-    export_font(vf, output_dir, basename)
+    export_font(vf, output_dir, basename, is_variable=True)
 
     elapsed = time.time() - start
     print(f"\nBuild complete in {elapsed:.1f}s")
@@ -148,12 +148,12 @@ def build_all():
     print("=" * 50)
 
     axes_config = [
-        ("wdth", "Width", 0, 50, 100),
+        ("wdth", "Width", 50, 100, 150),
         ("wght", "Weight", 100, 400, 900),
     ]
 
     # Default wdth for named instances
-    default_wdth = 50
+    default_wdth = 100
 
     for suffix, max_value in SCALES:
         print(f"\n── Building Datatype ──")
@@ -199,7 +199,7 @@ def build_all():
         # Export variable font
         basename = f"{FAMILY_NAME}{suffix}"
         print(f"  Exporting {basename}...")
-        export_font(vf, output_dir, basename)
+        export_font(vf, output_dir, basename, is_variable=True)
 
         # Export static instances
         static_dir = os.path.join(output_dir, "static")

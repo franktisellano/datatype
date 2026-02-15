@@ -1,0 +1,77 @@
+name: Build and Test Fonts
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+
+    - name: Set up Python
+      uses: actions/setup-python@v5
+      with:
+        python-version: '3.11'
+
+    - name: Install dependencies
+      run: |
+        pip install --upgrade pip
+        pip install -r requirements.txt
+
+    - name: Build fonts
+      run: python src/build.py --dev
+
+    - name: Check font files exist
+      run: |
+        test -f fonts/Datatype[wdth,wght].ttf
+        test -f fonts/Datatype[wdth,wght].woff2
+        echo "✓ Font files built successfully"
+
+    - name: Upload font artifacts
+      uses: actions/upload-artifact@v4
+      with:
+        name: fonts
+        path: fonts/
+        retention-days: 7
+
+  validate:
+    runs-on: ubuntu-latest
+    needs: build
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+
+    - name: Set up Python
+      uses: actions/setup-python@v5
+      with:
+        python-version: '3.11'
+
+    - name: Install dependencies
+      run: |
+        pip install --upgrade pip
+        pip install -r requirements.txt
+        pip install -r requirements-dev.txt
+
+    - name: Build fonts
+      run: python src/build.py --dev
+
+    - name: Run fontbakery checks
+      run: |
+        fontbakery check-googlefonts "fonts/Datatype[wdth,wght].ttf" --succinct || true
+        echo "✓ Fontbakery validation complete (check logs for details)"
+      continue-on-error: true
+
+    - name: Upload validation report
+      uses: actions/upload-artifact@v4
+      with:
+        name: fontbakery-report
+        path: fontbakery-*.txt
+        retention-days: 30
+      if: always()

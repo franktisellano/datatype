@@ -1,4 +1,4 @@
-fonttools[woff2]
-brotli
-watchdog
-websockets
+fonttools[woff2]==4.60.2
+brotli==1.2.0
+watchdog==6.0.0
+websockets==15.0.1

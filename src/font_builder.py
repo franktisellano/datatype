@@ -12,7 +12,7 @@ from fontTools.otlLib.builder import buildStatTable
 
 from src.config import (
     UPM, ASCENDER, DESCENDER, FAMILY_NAME, REGULAR_STYLE,
-    CAP_HEIGHT, X_HEIGHT,
+    CAP_HEIGHT, X_HEIGHT, FONT_VERSION,
 )
 
 
@@ -79,7 +79,7 @@ def build_font(glyph_data, feature_code, style=REGULAR_STYLE, family_name=FAMILY
     fb.setupNameTable({
         "familyName": family_name,
         "styleName": style,
-        "copyright": "Copyright 2026 Frank Tisellano. Includes glyphs from IBM Plex™ © IBM Corp.",
+        "copyright": "Copyright 2026 The Datatype Project Authors (https://github.com/franktisellano/datatype)",
         "manufacturer": "Datatype Project",
         "licenseDescription": "This Font Software is licensed under the SIL Open Font License, Version 1.1.",
         "licenseInfoURL": "https://openfontlicense.org",
@@ -88,25 +88,31 @@ def build_font(glyph_data, feature_code, style=REGULAR_STYLE, family_name=FAMILY
         sTypoAscender=ASCENDER,
         sTypoDescender=DESCENDER,
         sTypoLineGap=0,
-        usWinAscent=ASCENDER,
-        usWinDescent=abs(DESCENDER),
+        usWinAscent=850,  # Must accommodate tallest glyphs + accents (fontbakery requires ≥811)
+        usWinDescent=250,  # Must accommodate deepest glyphs + descenders (fontbakery requires ≥212)
         sxHeight=X_HEIGHT,
         sCapHeight=CAP_HEIGHT,
         achVendID="DTPE",  # Datatype Project
         fsType=0x0000,  # Installable embedding (OFL compliant)
-        fsSelection=0x0080,  # Bit 7: USE_TYPO_METRICS (critical for cross-platform)
+        fsSelection=0x00C0,  # Bit 6: REGULAR + Bit 7: USE_TYPO_METRICS
         usWidthClass=5,  # Medium/Normal (will be overridden by variable font width axis)
         version=4,  # OS/2 table version 4 (supports fsSelection bits 7-9)
     )
     fb.setupPost()
     # Bit 4: Instructions may alter advance width (allows geometry beyond advance width)
-    # Set proper timestamps to avoid ttx warnings
-    now = int(time.time())
+    # Timestamps: Font spec uses seconds since 1904-01-01 00:00:00
+    # Current time minus 1 day for creation (fonts should have creation in past)
+    from datetime import datetime, timedelta
+    now = datetime.now()
+    epoch_1904 = datetime(1904, 1, 1)
+    created_seconds = int((now - timedelta(days=1) - epoch_1904).total_seconds())
+    modified_seconds = int((now - epoch_1904).total_seconds())
+
     fb.setupHead(
         unitsPerEm=UPM,
         flags=0b00010000,
-        created=now - 86400,  # Yesterday (fonts should have a creation date in the past)
-        modified=now
+        created=created_seconds,
+        modified=modified_seconds
     )
 
     if feature_code:
@@ -114,15 +120,53 @@ def build_font(glyph_data, feature_code, style=REGULAR_STYLE, family_name=FAMILY
 
     # Add additional required name table entries
     font = fb.font
+
+    # Add 'gasp' table for proper antialiasing (Google Fonts requirement)
+    # 0x000F = gridfit + grayscale + symmetric smoothing + symmetric gridfit
+    from fontTools.ttLib.tables._g_a_s_p import table__g_a_s_p
+    gasp_table = table__g_a_s_p()
+    gasp_table.gaspRange = {0xFFFF: 0x000F}  # All sizes
+    font["gasp"] = gasp_table
+
+    # Set PANOSE values for sans-serif proportional font
+    # Note: ASCII chars are monospaced, but chart glyphs are wider (mixed width font)
+    os2 = font["OS/2"]
+    os2.panose.bFamilyType = 2   # Latin Text
+    os2.panose.bSerifStyle = 11  # Sans Serif
+    os2.panose.bWeight = 5       # Book (will vary with weight axis)
+    os2.panose.bProportion = 3   # Modern (mixed proportions)
+    os2.panose.bContrast = 0     # Any
+    os2.panose.bStrokeVariation = 0  # Any
+    os2.panose.bArmStyle = 0     # Any
+    os2.panose.bLetterform = 0   # Any
+    os2.panose.bMidline = 0      # Any
+    os2.panose.bXHeight = 0      # Any
+
+    # Set code page ranges (Latin support)
+    os2.ulCodePageRange1 = (
+        0x00000001 |  # Latin 1 (1252)
+        0x00000002 |  # Latin 2: Eastern Europe (1250)
+        0x00000004 |  # Cyrillic (1251) - may add in future
+        0x00000008 |  # Greek (1253) - may add in future
+        0x00000020 |  # Turkish (1254)
+        0x00000040    # Baltic (1257)
+    )
+    os2.ulCodePageRange2 = 0
+
+    # Set post table isFixedPitch to 0 (not monospaced)
+    # ASCII glyphs are fixed-width but chart glyphs are wider (mixed width font)
+    post = font["post"]
+    post.isFixedPitch = 0
+
     name_table = font["name"]
 
     # Name ID 0: Copyright
-    copyright_text = "Copyright 2026 Frank Tisellano"
+    copyright_text = "Copyright 2026 The Datatype Project Authors (https://github.com/franktisellano/datatype)"
     name_table.setName(copyright_text, 0, 3, 1, 0x0409)  # Windows
     name_table.setName(copyright_text, 0, 1, 0, 0)       # Mac
 
     # Name ID 3: Unique Font Identifier
-    unique_id = f"1.000;NONE;{family_name}-{style}"
+    unique_id = f"{FONT_VERSION};NONE;{family_name}-{style}"
     name_table.setName(unique_id, 3, 3, 1, 0x0409)
     name_table.setName(unique_id, 3, 1, 0, 0)
 
@@ -132,7 +176,7 @@ def build_font(glyph_data, feature_code, style=REGULAR_STYLE, family_name=FAMILY
     name_table.setName(full_name, 4, 1, 0, 0)
 
     # Name ID 5: Version String
-    version_string = "Version 1.000"
+    version_string = f"Version {FONT_VERSION}"
     name_table.setName(version_string, 5, 3, 1, 0x0409)
     name_table.setName(version_string, 5, 1, 0, 0)
 
@@ -211,6 +255,14 @@ def build_variable_font(master_fonts, axes_config, named_instances=None):
     ]
 
     stat_locations = [
+        # Width axis values (OpenType spec compliant: default=100)
+        dict(name="Condensed", location=dict(wdth=50)),
+        dict(name="SemiCondensed", location=dict(wdth=75)),
+        dict(name="Normal", location=dict(wdth=100), flags=0x2),  # ElidableAxisValueName
+        dict(name="SemiExpanded", location=dict(wdth=125)),
+        dict(name="Expanded", location=dict(wdth=150)),
+
+        # Weight axis values
         dict(name="Thin", location=dict(wght=100)),
         dict(name="ExtraLight", location=dict(wght=200)),
         dict(name="Light", location=dict(wght=300)),
@@ -220,30 +272,33 @@ def build_variable_font(master_fonts, axes_config, named_instances=None):
         dict(name="Bold", location=dict(wght=700)),
         dict(name="ExtraBold", location=dict(wght=800)),
         dict(name="Black", location=dict(wght=900)),
+
+        # Format 4: Multi-axis combinations for named instances
+        dict(name="Light Compact", location=dict(wdth=75, wght=300)),
+        dict(name="Regular", location=dict(wdth=100, wght=400), flags=0x2),  # Default instance
+        dict(name="Medium Wide", location=dict(wdth=125, wght=500)),
+        dict(name="Bold", location=dict(wdth=100, wght=700)),
+        dict(name="Thin Narrow", location=dict(wdth=50, wght=100)),
+        dict(name="Light Wide", location=dict(wdth=150, wght=300)),
+        dict(name="SemiBold Compact", location=dict(wdth=75, wght=600)),
+        dict(name="Black Wide", location=dict(wdth=150, wght=900)),
     ]
 
     buildStatTable(vf, stat_axes, stat_locations)
 
-    # Fix usWidthClass: wdth 0-100 is custom range, default 50 = normal width
-    # varLib.build() auto-sets this to 1 (Ultra-condensed) based on wdth=50
-    # Override to 5 (Normal/Medium) for correct display in font menus
+    # Fix usWidthClass for proper display in font menus
+    # For wdth 50-150 with default 100, use class 5 (Normal/Medium)
     vf["OS/2"].usWidthClass = 5
 
-    # Add recommended variable font name table entries
-    # These help font tools and applications properly identify variable font instances
+    # Add variable font name table entries
     name_table = vf["name"]
-
-    # Name ID 16: Typographic Family (for variable fonts)
-    name_table.setName("Datatype", 16, 3, 1, 0x0409)  # Windows
-    name_table.setName("Datatype", 16, 1, 0, 0)       # Mac
-
-    # Name ID 17: Typographic Subfamily (for variable fonts)
-    name_table.setName("Regular", 17, 3, 1, 0x0409)
-    name_table.setName("Regular", 17, 1, 0, 0)
 
     # Name ID 25: Variations PostScript Name Prefix
     name_table.setName("Datatype", 25, 3, 1, 0x0409)
     name_table.setName("Datatype", 25, 1, 0, 0)
+
+    # Note: Name IDs 16/17 (Typographic Family/Subfamily) are not needed
+    # for standard variable fonts per Google Fonts guidelines
 
     return vf
 

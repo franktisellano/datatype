@@ -4,18 +4,27 @@ import os
 from fontTools.ttLib import TTFont
 
 
-def export_font(font, output_dir, basename):
+def export_font(font, output_dir, basename, is_variable=False):
     """Export font as .ttf and .woff2.
 
     Args:
         font: fontTools TTFont object
         output_dir: output directory path
         basename: filename without extension (e.g. 'Datatype-Regular')
+        is_variable: if True, append axis tags in brackets (e.g. 'Datatype[wdth,wght].ttf')
     """
     os.makedirs(output_dir, exist_ok=True)
 
-    ttf_path = os.path.join(output_dir, f"{basename}.ttf")
-    woff2_path = os.path.join(output_dir, f"{basename}.woff2")
+    # Variable font filenames include axis tags in brackets (alphabetically ordered, wght last)
+    if is_variable:
+        ttf_filename = f"{basename}[wdth,wght].ttf"
+        woff2_filename = f"{basename}[wdth,wght].woff2"
+    else:
+        ttf_filename = f"{basename}.ttf"
+        woff2_filename = f"{basename}.woff2"
+
+    ttf_path = os.path.join(output_dir, ttf_filename)
+    woff2_path = os.path.join(output_dir, woff2_filename)
 
     # Save TTF
     font.save(ttf_path)

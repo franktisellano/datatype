@@ -15,8 +15,38 @@ Datatype uses OpenType ligature substitution to transform simple text expression
 - **Pie charts**: `{p:75}` — single percentage
 
 **Variable font axes:**
-- **Width (wdth)**: 0–100 — controls spacing (default: 50)
+- **Width (wdth)**: 50–150 — controls spacing (default: 100)
 - **Weight (wght)**: 100–900 — controls line thickness (default: 400)
+
+---
+
+## Google Fonts
+
+Datatype is available on Google Fonts for easy integration into web projects.
+
+### Using with Google Fonts API
+
+```html
+<link href="https://fonts.googleapis.com/css2?family=Datatype:wdth,wght@50,100;100,400;150,900&display=swap" rel="stylesheet">
+
+<style>
+  .chart {
+    font-family: 'Datatype', sans-serif;
+    font-variation-settings: 'wdth' 100, 'wght' 400;
+  }
+</style>
+```
+
+### Google Workspace Compatibility
+
+**Important:** Google Docs, Sheets, and Slides have limited variable font support:
+
+- ✅ **Bar charts and sparklines work** (via `calt` feature)
+- ⚠️ **Pie charts may not work** (require `liga` feature, not enabled by default)
+- ✅ **Weight axis** (100-900) accessible via font weight selector
+- ❌ **Width axis** not accessible in UI (defaults to 100)
+
+For full control over both wdth and wght axes, use the variable font in modern web browsers or install the desktop font files.
 
 ---
 
@@ -38,7 +68,7 @@ Datatype uses OpenType ligature substitution to transform simple text expression
 
     .chart {
       font-family: 'Datatype', sans-serif;
-      font-variation-settings: 'wdth' 50, 'wght' 400;
+      font-variation-settings: 'wdth' 100, 'wght' 400;
     }
   </style>
 </head>
@@ -133,9 +163,9 @@ python dev/server.py
 ```
 
 **Output:**
-- `fonts/Datatype.ttf` — Variable font (TTF)
-- `fonts/Datatype.woff2` — Variable font (WOFF2, 72KB)
-- `fonts/static/` — Static instances for non-variable-font apps
+- `fonts/Datatype[wdth,wght].ttf` — Variable font (TTF, 4.0MB)
+- `fonts/Datatype[wdth,wght].woff2` — Variable font (WOFF2, 73KB)
+- `fonts/static/` — 15 static instances (TTF + WOFF2)
 
 ---
 
@@ -145,30 +175,42 @@ python dev/server.py
 
 | Axis | Tag | Min | Default | Max |
 |------|-----|-----|---------|-----|
-| Width | wdth | 0 | 50 | 100 |
+| Width | wdth | 50 | 100 | 150 |
 | Weight | wght | 100 | 400 | 900 |
 
 ### Named Instances
 
-8 curated static font combinations:
+15 static font combinations (9 standard + 6 custom width variants):
 
+**Standard Weight Instances (wdth=100):**
+| Instance | Width | Weight |
+|----------|-------|--------|
+| Thin | 100 | 100 |
+| ExtraLight | 100 | 200 |
+| Light | 100 | 300 |
+| Regular | 100 | 400 |
+| Medium | 100 | 500 |
+| SemiBold | 100 | 600 |
+| Bold | 100 | 700 |
+| ExtraBold | 100 | 800 |
+| Black | 100 | 900 |
+
+**Custom Width Combinations:**
 | Instance | Width | Weight | Use Case |
 |----------|-------|--------|----------|
-| LightCompact | 25 | 300 | Space-efficient |
-| Regular | 50 | 400 | Default |
-| MediumWide | 75 | 500 | Readable |
-| Bold | 50 | 700 | Emphasis |
-| ThinNarrow | 0 | 100 | Minimal sparklines |
-| LightWide | 100 | 300 | Maximum spacing |
-| SemiBoldCompact | 25 | 600 | Dense dashboards |
-| BlackWide | 100 | 900 | Maximum impact |
+| ThinNarrow | 50 | 100 | Minimal sparklines |
+| LightCompact | 75 | 300 | Space-efficient |
+| SemiBoldCompact | 75 | 600 | Dense dashboards |
+| MediumWide | 125 | 500 | Readable charts |
+| LightWide | 150 | 300 | Maximum spacing |
+| BlackWide | 150 | 900 | Maximum impact |
 
 ### Technical Details
 
 - **Format**: OpenType variable font (TTF/WOFF2)
 - **Features**: Contextual Alternates (`calt`), Standard Ligatures (`liga`)
-- **Glyph count**: 10,626
-- **File size**: 4.0 MB (TTF) / 72 KB (WOFF2)
+- **Glyph count**: 10,627 (per master, 9 masters total)
+- **File size**: 4.0 MB (TTF) / 73 KB (WOFF2)
 - **Unicode coverage**: Basic Latin (ASCII)
 
 ---

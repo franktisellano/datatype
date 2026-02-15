@@ -103,6 +103,9 @@ def draw_base_glyphs(glyph_drawing_funcs):
     # Space (no drawing)
     glyph_drawing_funcs["space"] = (SPACE_WIDTH, None)
 
+    # Non-breaking space (U+00A0) - same as regular space
+    glyph_drawing_funcs["uni00A0"] = (SPACE_WIDTH, None)
+
     # All printable ASCII - use imported glyphs
     for code in range(0x21, 0x7F):
         char = chr(code)
