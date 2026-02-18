@@ -1,3 +1,3 @@
 -r requirements.txt
-fontbakery==0.12.10
+fontbakery==1.1.0
 gftools==0.9.63

@@ -205,6 +205,20 @@
     text-align: right;
     font-variant-numeric: tabular-nums;
   }
+  .controls select {
+    background: var(--bg);
+    color: var(--text);
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    padding: 5px 8px;
+    font-size: 0.85rem;
+    font-family: 'Inter', sans-serif;
+    cursor: pointer;
+    outline: none;
+  }
+  .controls select:focus { border-color: var(--accent); }
+  .controls input[type="range"]:disabled { opacity: 0.3; cursor: not-allowed; }
+  .controls .value.dimmed { opacity: 0.3; }
 
   code {
     background: rgba(79, 195, 247, 0.1);
@@ -257,9 +271,34 @@
 <h2>Controls</h2>
 <div class="controls">
   <div class="control-group">
+    <label for="fontSourceSelect">Source:</label>
+    <select id="fontSourceSelect">
+      <option value="variable">Variable Font</option>
+      <optgroup label="Standard Weights">
+        <option value="Thin|100|100">Thin</option>
+        <option value="ExtraLight|100|200">ExtraLight</option>
+        <option value="Light|100|300">Light</option>
+        <option value="Regular|100|400">Regular</option>
+        <option value="Medium|100|500">Medium</option>
+        <option value="SemiBold|100|600">SemiBold</option>
+        <option value="Bold|100|700">Bold</option>
+        <option value="ExtraBold|100|800">ExtraBold</option>
+        <option value="Black|100|900">Black</option>
+      </optgroup>
+      <optgroup label="Cross-Axis Instances">
+        <option value="Thin UltraCondensed|50|100">Thin UltraCondensed</option>
+        <option value="Light Condensed|75|300">Light Condensed</option>
+        <option value="SemiBold Condensed|75|600">SemiBold Condensed</option>
+        <option value="Medium Expanded|125|500">Medium Expanded</option>
+        <option value="Light ExtraExpanded|150|300">Light ExtraExpanded</option>
+        <option value="Black ExtraExpanded|150|900">Black ExtraExpanded</option>
+      </optgroup>
+    </select>
+  </div>
+  <div class="control-group">
     <label for="wdthSlider">Width:</label>
-    <input type="range" id="wdthSlider" min="0" max="100" value="50" step="1">
-    <span class="value" id="wdthValue">50</span>
+    <input type="range" id="wdthSlider" min="50" max="150" value="100" step="1">
+    <span class="value" id="wdthValue">100</span>
   </div>
   <div class="control-group">
     <label for="thckSlider">Weight:</label>
@@ -268,8 +307,8 @@
   </div>
 </div>
 
-<h2 class="section-toggle">Live Editor</h2>
-<div class="section-content">
+<h2 class="section-toggle expanded">Live Editor</h2>
+<div class="section-content expanded">
   <div class="font-picker">
     <label for="editorSizeSelect">Size:</label>
     <select id="editorSizeSelect">
@@ -286,8 +325,8 @@
   <div class="editor" contenteditable="true" id="editor"></div>
 </div>
 
-<h2 class="section-toggle expanded">QWERTY Keyboard Glyphs</h2>
-<div class="section-content expanded">
+<h2 class="section-toggle">QWERTY Keyboard Glyphs</h2>
+<div class="section-content">
   <div class="test-card">
     <div class="label">All glyphs available on a standard US QWERTY keyboard</div>
     <div class="controls" style="margin-bottom: 1rem; background: transparent; border: none; padding: 0;">
@@ -436,26 +475,45 @@
 <script>
 (function() {
   let fontVersion = Date.now();
-  let wdthValue = 50;
+  let wdthValue = 100;
   let thckValue = 400;
+  let usingStatic = false;
 
-  function loadFonts(v) {
-    const style = document.getElementById('fontStyle') || (() => {
+  function getStyle() {
+    return document.getElementById('fontStyle') || (() => {
       const s = document.createElement('style');
       s.id = 'fontStyle';
       document.head.appendChild(s);
       return s;
     })();
-    style.textContent = `
-      @font-face {
-        font-family: 'Datatype';
-        src: url('/fonts/Datatype.woff2?v=${v}') format('woff2'),
-             url('/fonts/Datatype.ttf?v=${v}') format('truetype');
-        font-weight: 100 900;
-        font-stretch: 0% 100%;
-        font-display: swap;
-      }
-    `;
+  }
+
+  function loadFonts(v, staticName) {
+    const style = getStyle();
+    if (staticName) {
+      const encoded = encodeURIComponent(staticName);
+      style.textContent = `
+        @font-face {
+          font-family: 'Datatype';
+          src: url('/fonts/webfonts/Datatype-${encoded}.woff2?v=${v}') format('woff2'),
+               url('/fonts/ttf/Datatype-${encoded}.ttf?v=${v}') format('truetype');
+          font-weight: 100 900;
+          font-stretch: 50% 200%;
+          font-display: swap;
+        }
+      `;
+    } else {
+      style.textContent = `
+        @font-face {
+          font-family: 'Datatype';
+          src: url('/fonts/variable/Datatype%5Bwdth%2Cwght%5D.woff2?v=${v}') format('woff2'),
+               url('/fonts/variable/Datatype%5Bwdth%2Cwght%5D.ttf?v=${v}') format('truetype');
+          font-weight: 100 900;
+          font-stretch: 50% 200%;
+          font-display: swap;
+        }
+      `;
+    }
   }
 
   function updateAxes() {
@@ -463,8 +521,38 @@
     document.documentElement.style.setProperty('--chart-axes', val);
   }
 
+  function enableSliders(enabled) {
+    wdthSlider.disabled = !enabled;
+    thckSlider.disabled = !enabled;
+    wdthDisplay.classList.toggle('dimmed', !enabled);
+    thckDisplay.classList.toggle('dimmed', !enabled);
+  }
+
   loadFonts(fontVersion);
   updateAxes();
+
+  // Font source picker
+  const fontSourceSelect = document.getElementById('fontSourceSelect');
+  fontSourceSelect.addEventListener('change', () => {
+    const val = fontSourceSelect.value;
+    if (val === 'variable') {
+      usingStatic = false;
+      loadFonts(Date.now());
+      enableSliders(true);
+    } else {
+      usingStatic = true;
+      const [name, wdth, wght] = val.split('|');
+      loadFonts(Date.now(), name);
+      wdthValue = parseInt(wdth);
+      thckValue = parseInt(wght);
+      wdthSlider.value = wdthValue;
+      thckSlider.value = thckValue;
+      wdthDisplay.textContent = wdthValue;
+      thckDisplay.textContent = thckValue;
+      updateAxes();
+      enableSliders(false);
+    }
+  });
 
   // Axis sliders
   const wdthSlider = document.getElementById('wdthSlider');
@@ -507,7 +595,7 @@
       const data = JSON.parse(event.data);
       if (data.type === 'reload') {
         fontVersion = Date.now();
-        loadFonts(fontVersion);
+        if (!usingStatic) loadFonts(fontVersion);
         statusEl.textContent = 'Fonts reloaded';
         setTimeout(() => {
           statusEl.textContent = 'Connected — watching for changes';

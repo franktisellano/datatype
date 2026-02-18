@@ -15,6 +15,12 @@ DESCENDER = -200
 CAP_HEIGHT = 700
 X_HEIGHT = 500
 
+# Vertical metrics (Google Fonts compliance)
+TYPO_ASCENDER = 1000
+TYPO_DESCENDER = -300
+WIN_ASCENT = 976
+WIN_DESCENT = 251
+
 # Chart dimensions (within UPM)
 CHART_WIDTH = 800       # Total width of a chart glyph
 CHART_HEIGHT = 840      # Max height for chart drawing area
@@ -86,24 +92,24 @@ AXIS_MASTERS = [
 
 # Named instances: (style_name, wdth, wght)
 # Google Fonts standard weight instances (at normal width=100) are required
-# Custom width combinations showcase the variable axes
+# Cross-axis instance names must match STAT axis value name combinations
 NAMED_INSTANCES = [
     # Standard weight instances (required by Google Fonts at wdth=100)
-    ("Thin",            100, 100),  # Standard thin
-    ("ExtraLight",      100, 200),  # Standard extra light
-    ("Light",           100, 300),  # Standard light
-    ("Regular",         100, 400),  # Default, balanced
-    ("Medium",          100, 500),  # Standard medium
-    ("SemiBold",        100, 600),  # Standard semi-bold
-    ("Bold",            100, 700),  # Strong emphasis
-    ("ExtraBold",       100, 800),  # Standard extra bold
-    ("Black",           100, 900),  # Standard black
+    ("Thin",                  100, 100),
+    ("ExtraLight",            100, 200),
+    ("Light",                 100, 300),
+    ("Regular",               100, 400),
+    ("Medium",                100, 500),
+    ("SemiBold",              100, 600),
+    ("Bold",                  100, 700),
+    ("ExtraBold",             100, 800),
+    ("Black",                 100, 900),
 
-    # Custom width combinations (showcase variable width axis)
-    ("ThinNarrow",      50,  100),  # Ultra-minimal sparklines
-    ("LightCompact",    75,  300),  # Subtle, space-efficient charts
-    ("SemiBoldCompact", 75,  600),  # Dense dashboards
-    ("LightWide",       150, 300),  # Maximum breathing room
-    ("MediumWide",      125, 500),  # Prominent, readable charts
-    ("BlackWide",       150, 900),  # Maximum impact
+    # Cross-axis instances — names = STAT axis value name combinations (GF Axis Registry)
+    ("Thin UltraCondensed",   50,  100),  # wdth=50 is UltraCondensed per GF Axis Registry
+    ("Light Condensed",       75,  300),
+    ("SemiBold Condensed",    75,  600),
+    ("Light ExtraExpanded",   150, 300),  # wdth=150 is ExtraExpanded per GF Axis Registry
+    ("Medium Expanded",       125, 500),  # wdth=125 is Expanded per GF Axis Registry
+    ("Black ExtraExpanded",   150, 900),  # wdth=150 is ExtraExpanded per GF Axis Registry
 ]

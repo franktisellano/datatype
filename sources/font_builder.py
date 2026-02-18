@@ -13,6 +13,7 @@ from fontTools.otlLib.builder import buildStatTable
 from sources.config import (
     UPM, ASCENDER, DESCENDER, FAMILY_NAME, REGULAR_STYLE,
     CAP_HEIGHT, X_HEIGHT, FONT_VERSION,
+    TYPO_ASCENDER, TYPO_DESCENDER, WIN_ASCENT, WIN_DESCENT,
 )
 
 
@@ -75,7 +76,7 @@ def build_font(glyph_data, feature_code, style=REGULAR_STYLE, family_name=FAMILY
         metrics[name] = (width, lsb)
     fb.setupHorizontalMetrics(metrics)
 
-    fb.setupHorizontalHeader(ascent=ASCENDER, descent=DESCENDER)
+    fb.setupHorizontalHeader(ascent=TYPO_ASCENDER, descent=TYPO_DESCENDER)
     fb.setupNameTable({
         "familyName": family_name,
         "styleName": style,
@@ -85,11 +86,11 @@ def build_font(glyph_data, feature_code, style=REGULAR_STYLE, family_name=FAMILY
         "licenseInfoURL": "https://openfontlicense.org",
     })
     fb.setupOS2(
-        sTypoAscender=ASCENDER,
-        sTypoDescender=DESCENDER,
+        sTypoAscender=TYPO_ASCENDER,
+        sTypoDescender=TYPO_DESCENDER,
         sTypoLineGap=0,
-        usWinAscent=850,  # Must accommodate tallest glyphs + accents (fontbakery requires ≥811)
-        usWinDescent=250,  # Must accommodate deepest glyphs + descenders (fontbakery requires ≥212)
+        usWinAscent=WIN_ASCENT,
+        usWinDescent=WIN_DESCENT,
         sxHeight=X_HEIGHT,
         sCapHeight=CAP_HEIGHT,
         achVendID="DTPE",  # Datatype Project
@@ -114,6 +115,7 @@ def build_font(glyph_data, feature_code, style=REGULAR_STYLE, family_name=FAMILY
         created=created_seconds,
         modified=modified_seconds
     )
+    fb.font["head"].fontRevision = 1.100  # Matches name table "Version 1.100"
 
     if feature_code:
         fb.addOpenTypeFeatures(feature_code)
@@ -128,13 +130,28 @@ def build_font(glyph_data, feature_code, style=REGULAR_STYLE, family_name=FAMILY
     gasp_table.gaspRange = {0xFFFF: 0x000F}  # All sizes
     font["gasp"] = gasp_table
 
+    # Add 'prep' table with smart dropout control (Google Fonts requirement)
+    # B8 01 FF = PUSHW 0x01FF; 85 = SCANCTRL; B0 04 = PUSHB 4; 8D = SCANTYPE
+    from fontTools.ttLib import newTable
+    from fontTools.ttLib.tables.ttProgram import Program
+    prep_table = newTable("prep")
+    prep_program = Program()
+    prep_program.fromBytecode([0xB8, 0x01, 0xFF, 0x85, 0xB0, 0x04, 0x8D])
+    prep_table.program = prep_program
+    font["prep"] = prep_table
+
+    # Add 'meta' table with ScriptLangTags (Google Fonts requirement)
+    meta_table = newTable("meta")
+    meta_table.data = {"dlng": "Latn", "slng": "Latn"}
+    font["meta"] = meta_table
+
     # Set PANOSE values for sans-serif proportional font
     # Note: ASCII chars are monospaced, but chart glyphs are wider (mixed width font)
     os2 = font["OS/2"]
     os2.panose.bFamilyType = 2   # Latin Text
     os2.panose.bSerifStyle = 11  # Sans Serif
     os2.panose.bWeight = 5       # Book (will vary with weight axis)
-    os2.panose.bProportion = 3   # Modern (mixed proportions)
+    os2.panose.bProportion = 9   # Monospaced (ASCII glyphs are fixed-width)
     os2.panose.bContrast = 0     # Any
     os2.panose.bStrokeVariation = 0  # Any
     os2.panose.bArmStyle = 0     # Any
@@ -195,6 +212,10 @@ def build_font(glyph_data, feature_code, style=REGULAR_STYLE, family_name=FAMILY
     name_table.setName(license_url, 14, 3, 1, 0x0409)
     name_table.setName(license_url, 14, 1, 0, 0)
 
+    # Name ID 9: Designer
+    name_table.setName("Frank Tisellano", 9, 3, 1, 0x0409)  # Windows
+    name_table.setName("Frank Tisellano", 9, 1, 0, 0)        # Mac
+
     return font
 
 
@@ -248,43 +269,33 @@ def build_variable_font(master_fonts, axes_config, named_instances=None):
 
     # Populate STAT table with axis values for named instances
     # This is REQUIRED per OpenType spec for variable fonts with named instances
-    # Safari enforces this requirement strictly at weight 600+
+    # API: single-axis values go in the 'values' field of each axis dict (Format 1/3)
+    #      multi-axis Format 4 entries go in a separate 'locations' argument
     stat_axes = [
-        dict(tag="wdth", name="Width"),
-        dict(tag="wght", name="Weight"),
+        dict(tag="wdth", name="Width", values=[
+            dict(value=50,   name="UltraCondensed"),   # GF Axis Registry: 50=UltraCondensed
+            dict(value=75,   name="Condensed"),
+            dict(value=100,  name="Normal", flags=0x2),  # ElidableAxisValueName
+            dict(value=125,  name="Expanded"),          # GF Axis Registry: 125=Expanded
+            dict(value=150,  name="ExtraExpanded"),     # GF Axis Registry: 150=ExtraExpanded
+        ]),
+        dict(tag="wght", name="Weight", values=[
+            dict(value=100, name="Thin"),
+            dict(value=200, name="ExtraLight"),
+            dict(value=300, name="Light"),
+            dict(value=400, name="Regular", flags=0x2, linkedValue=700.0),  # Format 3
+            dict(value=500, name="Medium"),
+            dict(value=600, name="SemiBold"),
+            dict(value=700, name="Bold"),
+            dict(value=800, name="ExtraBold"),
+            dict(value=900, name="Black"),
+        ]),
     ]
 
-    stat_locations = [
-        # Width axis values (OpenType spec compliant: default=100)
-        dict(name="Condensed", location=dict(wdth=50)),
-        dict(name="SemiCondensed", location=dict(wdth=75)),
-        dict(name="Normal", location=dict(wdth=100), flags=0x2),  # ElidableAxisValueName
-        dict(name="SemiExpanded", location=dict(wdth=125)),
-        dict(name="Expanded", location=dict(wdth=150)),
+    buildStatTable(vf, stat_axes)  # No Format 4 locations
 
-        # Weight axis values
-        dict(name="Thin", location=dict(wght=100)),
-        dict(name="ExtraLight", location=dict(wght=200)),
-        dict(name="Light", location=dict(wght=300)),
-        dict(name="Regular", location=dict(wght=400), flags=0x2),  # ElidableAxisValueName
-        dict(name="Medium", location=dict(wght=500)),
-        dict(name="SemiBold", location=dict(wght=600)),
-        dict(name="Bold", location=dict(wght=700)),
-        dict(name="ExtraBold", location=dict(wght=800)),
-        dict(name="Black", location=dict(wght=900)),
-
-        # Format 4: Multi-axis combinations for named instances
-        dict(name="Light Compact", location=dict(wdth=75, wght=300)),
-        dict(name="Regular", location=dict(wdth=100, wght=400), flags=0x2),  # Default instance
-        dict(name="Medium Wide", location=dict(wdth=125, wght=500)),
-        dict(name="Bold", location=dict(wdth=100, wght=700)),
-        dict(name="Thin Narrow", location=dict(wdth=50, wght=100)),
-        dict(name="Light Wide", location=dict(wdth=150, wght=300)),
-        dict(name="SemiBold Compact", location=dict(wdth=75, wght=600)),
-        dict(name="Black Wide", location=dict(wdth=150, wght=900)),
-    ]
-
-    buildStatTable(vf, stat_axes, stat_locations)
+    # Strip all Mac platform (platformID=1) name entries — required by GF (no_mac_entries check)
+    vf["name"].names = [rec for rec in vf["name"].names if rec.platformID != 1]
 
     # Fix usWidthClass for proper display in font menus
     # For wdth 50-150 with default 100, use class 5 (Normal/Medium)
@@ -293,9 +304,8 @@ def build_variable_font(master_fonts, axes_config, named_instances=None):
     # Add variable font name table entries
     name_table = vf["name"]
 
-    # Name ID 25: Variations PostScript Name Prefix
+    # Name ID 25: Variations PostScript Name Prefix (Windows platform only — GF no_mac_entries)
     name_table.setName("Datatype", 25, 3, 1, 0x0409)
-    name_table.setName("Datatype", 25, 1, 0, 0)
 
     # Note: Name IDs 16/17 (Typographic Family/Subfamily) are not needed
     # for standard variable fonts per Google Fonts guidelines
