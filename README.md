@@ -20,36 +20,6 @@ Datatype uses OpenType ligature substitution to transform simple text expression
 
 ---
 
-## Google Fonts
-
-Datatype is available on Google Fonts for easy integration into web projects.
-
-### Using with Google Fonts API
-
-```html
-<link href="https://fonts.googleapis.com/css2?family=Datatype:wdth,wght@50,100;100,400;150,900&display=swap" rel="stylesheet">
-
-<style>
-  .chart {
-    font-family: 'Datatype', sans-serif;
-    font-variation-settings: 'wdth' 100, 'wght' 400;
-  }
-</style>
-```
-
-### Google Workspace Compatibility
-
-**Important:** Google Docs, Sheets, and Slides have limited variable font support:
-
-- ✅ **Bar charts and sparklines work** (via `calt` feature)
-- ⚠️ **Pie charts may not work** (require `liga` feature, not enabled by default)
-- ✅ **Weight axis** (100-900) accessible via font weight selector
-- ❌ **Width axis** not accessible in UI (defaults to 100)
-
-For full control over both wdth and wght axes, use the variable font in modern web browsers or install the desktop font files.
-
----
-
 ## Quick Start
 
 ### Web (Recommended)
@@ -238,7 +208,6 @@ datatype/
 │   ├── config.py          # Font parameters & scales
 │   ├── font_builder.py    # FontTools assembly
 │   └── glyphs/            # Glyph drawing modules
-├── documentation/          # Font description for Google Fonts
 ├── docs/                   # Specimen website (GitHub Pages)
 ├── dev/                    # Development server
 ├── fonts/                  # Generated fonts
