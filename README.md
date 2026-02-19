@@ -33,7 +33,7 @@ Datatype uses OpenType ligature substitution to transform simple text expression
       font-family: 'Datatype';
       src: url('Datatype.woff2') format('woff2');
       font-weight: 100 900;
-      font-stretch: 0% 100%;
+      font-stretch: 50% 150%;
     }
 
     .chart {
@@ -114,7 +114,7 @@ pip install -r requirements.txt
 ### Build Fonts
 
 ```bash
-# Build all variants (2 variable fonts + 16 static instances)
+# Build variable font + 15 static instances
 python sources/build.py
 
 # Development mode (faster, builds only default variant)
@@ -169,20 +169,20 @@ python dev/server.py
 **Custom Width Combinations:**
 | Instance | Width | Weight | Use Case |
 |----------|-------|--------|----------|
-| ThinNarrow | 50 | 100 | Minimal sparklines |
-| LightCompact | 75 | 300 | Space-efficient |
-| SemiBoldCompact | 75 | 600 | Dense dashboards |
-| MediumWide | 125 | 500 | Readable charts |
-| LightWide | 150 | 300 | Maximum spacing |
-| BlackWide | 150 | 900 | Maximum impact |
+| Thin UltraCondensed | 50 | 100 | Minimal sparklines |
+| Light Condensed | 75 | 300 | Space-efficient |
+| SemiBold Condensed | 75 | 600 | Dense dashboards |
+| Medium Expanded | 125 | 500 | Readable charts |
+| Light ExtraExpanded | 150 | 300 | Maximum spacing |
+| Black ExtraExpanded | 150 | 900 | Maximum impact |
 
 ### Technical Details
 
 - **Format**: OpenType variable font (TTF/WOFF2)
 - **Features**: Contextual Alternates (`calt`), Standard Ligatures (`liga`)
-- **Glyph count**: 10,627 (per master, 9 masters total)
-- **File size**: 4.0 MB (TTF) / 73 KB (WOFF2)
-- **Unicode coverage**: Basic Latin (ASCII)
+- **Glyph count**: 10,850 (per master, 9 masters total)
+- **File size**: 4.0 MB (TTF) / 78 KB (WOFF2)
+- **Unicode coverage**: Google Fonts Latin Core
 
 ---
 
