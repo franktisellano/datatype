@@ -120,15 +120,16 @@ def build_dev():
     glyph_count = len(default_font.getGlyphOrder())
     print(f"  Glyphs per master: {glyph_count}")
 
-    # Named instances (with custom wdth + wght combinations)
-    named_instances = [
+    # fvar named instances: weight axis only (wdth=100), per GF spec
+    fvar_instances = [
         (style, {"Width": wdth, "Weight": wght})
         for style, wdth, wght in NAMED_INSTANCES
+        if wdth == 100
     ]
 
     # Build variable font
     print("  Merging masters into variable font...")
-    vf = build_variable_font(masters, axes_config, named_instances)
+    vf = build_variable_font(masters, axes_config, fvar_instances)
 
     # Export variable font
     basename = f"{FAMILY_NAME}{suffix}"
@@ -188,15 +189,16 @@ def build_all():
         glyph_count = len(default_font.getGlyphOrder())
         print(f"  Glyphs per master: {glyph_count}")
 
-        # Named instances (with custom wdth + wght combinations)
-        named_instances = [
+        # fvar named instances: weight axis only (wdth=100), per GF spec
+        fvar_instances = [
             (style, {"Width": wdth, "Weight": wght})
             for style, wdth, wght in NAMED_INSTANCES
+            if wdth == 100
         ]
 
         # Build variable font
         print("  Merging masters into variable font...")
-        vf = build_variable_font(masters, axes_config, named_instances)
+        vf = build_variable_font(masters, axes_config, fvar_instances)
 
         # Export variable font
         basename = f"{FAMILY_NAME}{suffix}"

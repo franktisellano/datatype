@@ -267,6 +267,9 @@ def build_variable_font(master_fonts, axes_config, named_instances=None):
     # Build the variable font
     vf, _, _ = varLib.build(ds)
 
+    # Explicitly re-set fontRevision: varLib.build() may override it
+    vf["head"].fontRevision = float(FONT_VERSION)
+
     # Populate STAT table with axis values for named instances
     # This is REQUIRED per OpenType spec for variable fonts with named instances
     # API: single-axis values go in the 'values' field of each axis dict (Format 1/3)
@@ -275,6 +278,7 @@ def build_variable_font(master_fonts, axes_config, named_instances=None):
         dict(tag="wdth", name="Width", values=[
             dict(value=50,   name="UltraCondensed"),   # GF Axis Registry: 50=UltraCondensed
             dict(value=75,   name="Condensed"),
+            dict(value=87.5, name="SemiCondensed"),    # GF Axis Registry: 87.5=SemiCondensed (compulsory)
             dict(value=100,  name="Normal", flags=0x2),  # ElidableAxisValueName
             dict(value=125,  name="Expanded"),          # GF Axis Registry: 125=Expanded
             dict(value=150,  name="ExtraExpanded"),     # GF Axis Registry: 150=ExtraExpanded
