@@ -257,4 +257,10 @@ See [OFL.txt](OFL.txt) for full license text.
 
 ---
 
+## Thanks
+
+Huge thanks to @emmamarichal and @davelab6 for their guidance (and for Emma's beautiful proofs page!)
+
+---
+
 Made with ❤️ by Frank Tisellano
