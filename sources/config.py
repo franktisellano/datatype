@@ -3,10 +3,10 @@
 from dataclasses import dataclass
 
 # Font version - follows semantic versioning
-FONT_VERSION = "1.201"
+FONT_VERSION = "1.202"
 FONT_VERSION_MAJOR = 1
 FONT_VERSION_MINOR = 2
-FONT_VERSION_PATCH = 1
+FONT_VERSION_PATCH = 2
 
 # Font metrics
 UPM = 1000          # Units per em
