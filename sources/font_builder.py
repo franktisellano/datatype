@@ -115,7 +115,7 @@ def build_font(glyph_data, feature_code, style=REGULAR_STYLE, family_name=FAMILY
         created=created_seconds,
         modified=modified_seconds
     )
-    fb.font["head"].fontRevision = 1.100  # Matches name table "Version 1.100"
+    fb.font["head"].fontRevision = float(FONT_VERSION)
 
     if feature_code:
         fb.addOpenTypeFeatures(feature_code)
@@ -276,12 +276,14 @@ def build_variable_font(master_fonts, axes_config, named_instances=None):
     #      multi-axis Format 4 entries go in a separate 'locations' argument
     stat_axes = [
         dict(tag="wdth", name="Width", values=[
-            dict(value=50,   name="UltraCondensed"),   # GF Axis Registry: 50=UltraCondensed
-            dict(value=75,   name="Condensed"),
-            dict(value=87.5, name="SemiCondensed"),    # GF Axis Registry: 87.5=SemiCondensed (compulsory)
-            dict(value=100,  name="Normal", flags=0x2),  # ElidableAxisValueName
-            dict(value=125,  name="Expanded"),          # GF Axis Registry: 125=Expanded
-            dict(value=150,  name="ExtraExpanded"),     # GF Axis Registry: 150=ExtraExpanded
+            dict(value=50,    name="UltraCondensed"),   # GF Axis Registry: 50=UltraCondensed
+            dict(value=62.5,  name="ExtraCondensed"),   # GF Axis Registry: 62.5=ExtraCondensed (compulsory)
+            dict(value=75,    name="Condensed"),
+            dict(value=87.5,  name="SemiCondensed"),    # GF Axis Registry: 87.5=SemiCondensed (compulsory)
+            dict(value=100,   name="Normal", flags=0x2),  # ElidableAxisValueName
+            dict(value=112.5, name="SemiExpanded"),     # GF Axis Registry: 112.5=SemiExpanded (compulsory)
+            dict(value=125,   name="Expanded"),          # GF Axis Registry: 125=Expanded
+            dict(value=150,   name="ExtraExpanded"),     # GF Axis Registry: 150=ExtraExpanded
         ]),
         dict(tag="wght", name="Weight", values=[
             dict(value=100, name="Thin"),
@@ -325,7 +327,7 @@ def export_static_instance(vf, location, output_dir, basename, style_name, weigh
         location: dict of axis tag → value to pin, e.g. {"wght": 700, "wdth": 15}
         output_dir: output directory for TTF files
         basename: font family basename (e.g. "Datatype")
-        style_name: style name (e.g. "Bold")
+        style_name: style name from NAMED_INSTANCES (e.g. "Black ExtraExpanded")
         weight_class: OS/2 usWeightClass value
         woff2_dir: optional separate output directory for WOFF2 files (defaults to output_dir)
     """
@@ -334,32 +336,94 @@ def export_static_instance(vf, location, output_dir, basename, style_name, weigh
 
     static = instantiateVariableFont(copy.deepcopy(vf), location)
 
-    # Update name table
-    static["name"].setName(style_name, 2, 3, 1, 0x0409)  # styleName
-    static["name"].setName(style_name, 2, 1, 0, 0)        # styleName (Mac)
-    static["name"].setName(f"{basename}-{style_name}", 6, 3, 1, 0x0409)  # postScriptName
-    static["name"].setName(f"{basename}-{style_name}", 6, 1, 0, 0)
+    # GF Axis Registry weight name lookup
+    _WGHT_NAMES = {
+        100: "Thin", 200: "ExtraLight", 300: "Light", 400: "Regular",
+        500: "Medium", 600: "SemiBold", 700: "Bold", 800: "ExtraBold", 900: "Black",
+    }
+    # Human-readable width names for nameID 1/16 (no CamelCase — multi-word names use spaces)
+    _WDTH_HUMAN = {
+        50: "Ultra Condensed", 62.5: "Extra Condensed", 75: "Condensed",
+        87.5: "Semi Condensed", 100: "", 112.5: "Semi Expanded",
+        125: "Expanded", 150: "Extra Expanded", 200: "Ultra Expanded",
+    }
+    # Compact width names for PostScript name and filenames (no spaces, CamelCase OK)
+    _WDTH_COMPACT = {
+        50: "UltraCondensed", 62.5: "ExtraCondensed", 75: "Condensed",
+        87.5: "SemiCondensed", 100: "", 112.5: "SemiExpanded",
+        125: "Expanded", 150: "ExtraExpanded", 200: "UltraExpanded",
+    }
+
+    wght = int(location.get("wght", weight_class))
+    wdth = location.get("wdth", 100)
+    weight_name = _WGHT_NAMES.get(wght, str(wght))
+    human_width = _WDTH_HUMAN.get(wdth, "")
+    compact_width = _WDTH_COMPACT.get(wdth, "")
+
+    # Regular (400) and Bold (700) at normal width use the classic 4-style convention:
+    # nameID 1 = family basename, nameID 2 = "Regular"/"Bold", no nameID 16/17.
+    # All other weights/widths are one-member legacy family groups (nameID 1 includes weight).
+    is_classic = wght in (400, 700) and not compact_width
+
+    if is_classic:
+        family_name_id1 = basename                       # "Datatype"
+        subfamily_id2 = weight_name                      # "Regular" or "Bold"
+        full_name = f"{basename} {weight_name}"          # "Datatype Regular", "Datatype Bold"
+        ps_name = f"{basename}-{weight_name}"            # "Datatype-Regular", "Datatype-Bold"
+        typo_family = None   # nameID 16/17 not set for classic 4-style
+        typo_subfamily = None
+        if wght == 700:
+            fs_selection = 0x00A0   # USE_TYPO_METRICS | BOLD
+            mac_style = 0x0001
+        else:
+            fs_selection = 0x00C0   # USE_TYPO_METRICS | REGULAR
+            mac_style = 0
+    elif compact_width:
+        # Cross-axis: human-readable width precedes weight in name fields
+        family_name_id1 = f"{basename} {human_width} {weight_name}"  # "Datatype Extra Expanded Black"
+        subfamily_id2 = "Regular"
+        full_name = family_name_id1
+        ps_name = f"{basename}{compact_width}-{weight_name}"          # "DatatypeExtraExpanded-Black"
+        typo_family = f"{basename} {human_width}"                     # "Datatype Extra Expanded"
+        typo_subfamily = weight_name                                   # "Black"
+        fs_selection = 0x00C0
+        mac_style = 0
+    else:
+        # Weight-only non-standard (Thin, ExtraLight, Light, Medium, SemiBold, ExtraBold, Black)
+        family_name_id1 = f"{basename} {weight_name}"   # "Datatype Black"
+        subfamily_id2 = "Regular"
+        full_name = family_name_id1
+        ps_name = f"{basename}-{weight_name}"            # "Datatype-Black"
+        typo_family = basename                           # "Datatype"
+        typo_subfamily = weight_name                     # "Black"
+        fs_selection = 0x00C0
+        mac_style = 0
+
+    # Update name table — strip Mac platform entries (GF no_mac_entries requirement)
+    name_table = static["name"]
+    name_table.names = [r for r in name_table.names if r.platformID != 1]
+    name_table.setName(family_name_id1, 1, 3, 1, 0x0409)   # Family Name
+    name_table.setName(subfamily_id2, 2, 3, 1, 0x0409)      # Subfamily Name
+    name_table.setName(full_name, 4, 3, 1, 0x0409)          # Full Font Name
+    name_table.setName(ps_name, 6, 3, 1, 0x0409)            # PostScript Name
+
+    if typo_family is not None:
+        name_table.setName(typo_family, 16, 3, 1, 0x0409)   # Typographic Family Name
+        name_table.setName(typo_subfamily, 17, 3, 1, 0x0409) # Typographic Subfamily Name
+    else:
+        # Remove nameID 16/17 — not needed for classic 4-style fonts (Regular, Bold)
+        name_table.names = [r for r in name_table.names if r.nameID not in (16, 17)]
 
     # Update OS/2 weight class
     static["OS/2"].usWeightClass = weight_class
 
-    # Set OS/2 fsSelection flags
-    fs_selection = 0x0080  # Bit 7: USE_TYPO_METRICS (required for cross-platform)
-    if style_name == "Regular":
-        fs_selection |= 0x0040  # Bit 6: REGULAR
-    if weight_class >= 700:
-        fs_selection |= 0x0020  # Bit 5: BOLD
     static["OS/2"].fsSelection = fs_selection
-
-    # Set head macStyle flags
-    mac_style = 0
-    if weight_class >= 700:
-        mac_style |= 0x0001  # Bit 0: BOLD
     static["head"].macStyle = mac_style
 
     os.makedirs(output_dir, exist_ok=True)
 
-    ttf_path = os.path.join(output_dir, f"{basename}-{style_name}.ttf")
+    # Filename follows the PostScript name (no spaces) — matches GF canonical_filename spec
+    ttf_path = os.path.join(output_dir, f"{ps_name}.ttf")
     static.save(ttf_path)
     print(f"    {ttf_path}")
 
@@ -368,6 +432,6 @@ def export_static_instance(vf, location, output_dir, basename, style_name, weigh
     os.makedirs(woff2_output_dir, exist_ok=True)
 
     static.flavor = "woff2"
-    woff2_path = os.path.join(woff2_output_dir, f"{basename}-{style_name}.woff2")
+    woff2_path = os.path.join(woff2_output_dir, f"{ps_name}.woff2")
     static.save(woff2_path)
     print(f"    {woff2_path}")

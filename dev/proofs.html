@@ -1,0 +1,486 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Datatype Font — Test Playground</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=DM+Mono:ital,wght@0,300;0,400;0,500;1,300&family=Syne:wght@400;600;800&display=swap');
+
+  @font-face {
+    font-family: 'Datatype';
+    src: url('/fonts/variable/Datatype[wdth,wght].woff2') format('woff2'),
+         url('/fonts/variable/Datatype[wdth,wght].ttf') format('truetype');
+    font-weight: 100 900;
+    font-style: normal;
+  }
+
+  :root {
+    --bg: #F2EFE9;
+    --ink: #1a1a1a;
+    --muted: #888;
+    --accent: #1a1a1a;
+    --card: #E8E4DC;
+    --tag: #D8D3C8;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: var(--bg);
+    color: var(--ink);
+    font-family: 'Syne', sans-serif;
+    min-height: 100vh;
+    padding: 0;
+  }
+
+  header {
+    padding: 60px 60px 40px;
+    border-bottom: 1px solid #ccc;
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+  }
+
+  header h1 {
+    font-size: clamp(2rem, 5vw, 4rem);
+    font-weight: 800;
+    line-height: 1;
+    letter-spacing: -0.03em;
+  }
+
+  header p {
+    font-size: 0.8rem;
+    color: var(--muted);
+    font-weight: 400;
+    text-align: right;
+    line-height: 1.6;
+  }
+
+  .sticky-bar {
+    position: sticky;
+    top: 0;
+    background: var(--bg);
+    z-index: 10;
+    border-bottom: 1px solid #ccc;
+  }
+
+  .tabs {
+    display: flex;
+    gap: 0;
+    padding: 0 60px;
+  }
+
+  .weight-bar {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    padding: 10px 60px;
+    border-top: 1px solid #e0dbd0;
+    background: var(--card);
+  }
+
+  .control-row {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+  }
+
+  .control-row label {
+    font-size: 0.7rem;
+    font-weight: 600;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--muted);
+    white-space: nowrap;
+    width: 52px;
+  }
+
+  .control-row input[type=range] {
+    flex: 1;
+    max-width: 320px;
+    accent-color: var(--ink);
+    cursor: pointer;
+    height: 3px;
+  }
+
+  .weight-presets {
+    display: flex;
+    gap: 6px;
+  }
+
+  .weight-preset {
+    padding: 4px 10px;
+    border: 1px solid #ccc;
+    border-radius: 20px;
+    background: none;
+    font-family: 'DM Mono', monospace;
+    font-size: 0.68rem;
+    cursor: pointer;
+    color: var(--muted);
+    transition: all 0.15s;
+  }
+
+  .weight-preset:hover, .weight-preset.active {
+    background: var(--ink);
+    color: var(--bg);
+    border-color: var(--ink);
+  }
+
+  .axis-value {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.75rem;
+    color: var(--ink);
+    min-width: 32px;
+    font-weight: 500;
+  }
+
+  .tab-btn {
+    padding: 16px 32px;
+    background: none;
+    border: none;
+    font-family: 'Syne', sans-serif;
+    font-size: 0.75rem;
+    font-weight: 600;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--muted);
+    cursor: pointer;
+    border-bottom: 2px solid transparent;
+    margin-bottom: -1px;
+    transition: all 0.2s;
+  }
+
+  .tab-btn:hover { color: var(--ink); }
+  .tab-btn.active {
+    color: var(--ink);
+    border-bottom-color: var(--ink);
+  }
+
+  .tab-panel { display: none; }
+  .tab-panel.active { display: block; }
+
+  .panel-header {
+    padding: 40px 60px 24px;
+    display: flex;
+    align-items: baseline;
+    gap: 16px;
+  }
+
+  .panel-header h2 {
+    font-size: 1.4rem;
+    font-weight: 800;
+    letter-spacing: -0.02em;
+  }
+
+  .panel-header .subtitle {
+    font-size: 0.75rem;
+    color: var(--muted);
+    font-weight: 400;
+  }
+
+  .grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    gap: 12px;
+    padding: 0 60px 60px;
+  }
+
+  .card {
+    background: var(--card);
+    border-radius: 8px;
+    padding: 20px 16px 16px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 12px;
+    transition: transform 0.15s, box-shadow 0.15s;
+    cursor: default;
+  }
+
+  .card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 24px rgba(0,0,0,0.1);
+  }
+
+  .chart-display {
+    font-family: 'Datatype', monospace;
+    font-size: 2rem;
+    line-height: 1;
+    min-height: 48px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 400;
+    transition: font-weight 0.2s, font-variation-settings 0.2s;
+    /* Enable ALL OpenType features — Datatype uses contextual ligatures */
+    font-feature-settings: "liga" 1, "clig" 1, "calt" 1, "dlig" 1;
+    -webkit-font-feature-settings: "liga" 1, "clig" 1, "calt" 1, "dlig" 1;
+    font-variant-ligatures: common-ligatures contextual discretionary-ligatures;
+    text-rendering: optimizeLegibility;
+    white-space: nowrap;
+  }
+
+  /* Fallback visual when Datatype not loaded */
+  .bar-fallback { display: flex; align-items: flex-end; gap: 3px; height: 40px; }
+  .bar-fallback span { background: var(--ink); width: 8px; display: block; border-radius: 1px 1px 0 0; }
+
+  .sparkline-fallback svg { overflow: visible; }
+
+  .pie-fallback {
+    width: 40px; height: 40px;
+    border-radius: 50%;
+    background: conic-gradient(var(--ink) 0% var(--pct), var(--tag) var(--pct) 100%);
+  }
+
+  .syntax {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.68rem;
+    color: var(--muted);
+    background: var(--tag);
+    padding: 4px 8px;
+    border-radius: 4px;
+    letter-spacing: 0.02em;
+    text-align: center;
+    width: 100%;
+  }
+
+  .label {
+    font-size: 0.6rem;
+    font-weight: 600;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--muted);
+    text-align: center;
+  }
+
+  @media (max-width: 768px) {
+    header, .panel-header { padding: 32px 24px 20px; }
+    header { flex-direction: column; gap: 16px; }
+    header p { text-align: left; }
+    .tabs { padding: 0 24px; }
+    .weight-bar { padding: 10px 24px; flex-wrap: wrap; }
+    .grid { padding: 0 24px 40px; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); }
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <h1>Datatype<br>Test Playground</h1>
+  <p>100 examples per chart type<br>Local font: Datatype[wdth,wght].ttf</p>
+</header>
+
+<div class="sticky-bar">
+  <div class="tabs">
+    <button class="tab-btn active" onclick="showTab('bar')">Bar Charts</button>
+    <button class="tab-btn" onclick="showTab('sparkline')">Sparklines</button>
+    <button class="tab-btn" onclick="showTab('pie')">Pie Charts</button>
+  </div>
+  <div class="weight-bar">
+    <div class="control-row">
+      <label>Weight</label>
+      <input type="range" id="weight-slider" min="100" max="900" step="1" value="400" oninput="updateAxis('wght', this.value)">
+      <span id="weight-value" class="axis-value">400</span>
+      <div class="weight-presets">
+        <button class="weight-preset" onclick="setAxis('wght',100)">Thin</button>
+        <button class="weight-preset" onclick="setAxis('wght',300)">Light</button>
+        <button class="weight-preset active" onclick="setAxis('wght',400)">Regular</button>
+        <button class="weight-preset" onclick="setAxis('wght',700)">Bold</button>
+        <button class="weight-preset" onclick="setAxis('wght',900)">Black</button>
+      </div>
+    </div>
+    <div class="control-row">
+      <label>Width</label>
+      <input type="range" id="width-slider" min="50" max="200" step="1" value="100" oninput="updateAxis('wdth', this.value)">
+      <span id="width-value" class="axis-value">100</span>
+      <div class="weight-presets">
+        <button class="weight-preset" onclick="setAxis('wdth',50)">Condensed</button>
+        <button class="weight-preset active" onclick="setAxis('wdth',100)">Normal</button>
+        <button class="weight-preset" onclick="setAxis('wdth',200)">Extended</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div id="tab-bar" class="tab-panel active">
+  <div class="panel-header">
+    <h2>Bar Charts</h2>
+    <span class="subtitle">Syntax: {b:v1,v2,v3,...}</span>
+  </div>
+  <div class="grid" id="bar-grid"></div>
+</div>
+
+<div id="tab-sparkline" class="tab-panel">
+  <div class="panel-header">
+    <h2>Sparklines</h2>
+    <span class="subtitle">Syntax: {l:v1,v2,v3,...}</span>
+  </div>
+  <div class="grid" id="sparkline-grid"></div>
+</div>
+
+<div id="tab-pie" class="tab-panel">
+  <div class="panel-header">
+    <h2>Pie Charts</h2>
+    <span class="subtitle">Syntax: {p:value} — from 1 to 100</span>
+  </div>
+  <div class="grid" id="pie-grid"></div>
+</div>
+
+<script>
+let currentWght = 400;
+let currentWdth = 100;
+
+function applyVariation(el) {
+  el.style.fontWeight = currentWght;
+  el.style.fontVariationSettings = "'wght' " + currentWght + ", 'wdth' " + currentWdth;
+  el.style.fontFeatureSettings = '"liga" 1, "clig" 1, "calt" 1, "dlig" 1';
+}
+
+function updateAxis(axis, val) {
+  val = parseFloat(val);
+  if (axis === 'wght') {
+    currentWght = val;
+    document.getElementById('weight-value').textContent = val;
+    document.getElementById('weight-slider').value = val;
+  } else {
+    currentWdth = val;
+    document.getElementById('width-value').textContent = val;
+    document.getElementById('width-slider').value = val;
+  }
+  document.querySelectorAll('.chart-display').forEach(el => applyVariation(el));
+}
+
+function setAxis(axis, val) { updateAxis(axis, val); }
+
+function showTab(name) {
+  document.querySelectorAll('.tab-btn').forEach((b, i) => {
+    b.classList.toggle('active', ['bar','sparkline','pie'][i] === name);
+  });
+  document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+  document.getElementById('tab-' + name).classList.add('active');
+}
+
+function rnd(min, max) { return Math.floor(Math.random() * (max - min + 1)) + min; }
+function makeBarData() { return Array.from({length: rnd(2,8)}, () => rnd(10,95)); }
+function makeSparkData() { return Array.from({length: rnd(3,10)}, () => rnd(10,95)); }
+
+// Build a card using proper DOM (avoids innerHTML issues with { } characters)
+function makeCard(syntax, label) {
+  const card = document.createElement('div');
+  card.className = 'card';
+
+  const display = document.createElement('div');
+  display.className = 'chart-display';
+  display.textContent = syntax;  // textContent = safe, no HTML parsing
+  applyVariation(display);
+
+  const syntaxEl = document.createElement('div');
+  syntaxEl.className = 'syntax';
+  syntaxEl.textContent = syntax;
+
+  const labelEl = document.createElement('div');
+  labelEl.className = 'label';
+  labelEl.textContent = label;
+
+  card.appendChild(display);
+  card.appendChild(syntaxEl);
+  card.appendChild(labelEl);
+  return card;
+}
+
+// --- Bar chart labels (English) ---
+const barLabels = [
+  "Q1–Q4 Growth","Weekly Sales","Temperatures","Web Traffic","Budget Spent",
+  "Team Scores","Monthly Revenue","Unique Visitors","Downloads","Response Time",
+  "Customer Satisfaction","Commit Count","Server Errors","Conversion","Retention",
+  "Published Posts","Subscribers","Social Shares","Support Tickets","NPS Score",
+  "Hours Worked","Ad Spend","Leads Generated","Demos Scheduled","Deals Signed",
+  "Onboardings","Churns","Reactivations","Upgrades","Downgrades",
+  "Page Views","Sessions","Bounce Rate","Time on Site","Scroll Depth",
+  "A/B Test A","A/B Test B","CTA Clicks","Forms Submitted","Email Open Rate",
+  "Email Clicks","Unsubscribes","Spam Reports","Deliveries","Bounces",
+  "Products Sold","Avg Cart Value","Refunds","Positive Reviews","Negative Reviews",
+  "Stock Left","Orders","Shipments","Late Deliveries","Returns",
+  "CPU Usage","RAM Usage","Disk I/O","Network In","Network Out",
+  "API Requests","Latency p50","Latency p95","Latency p99","4xx Errors",
+  "5xx Errors","Uptime","Deployments","Incidents","MTTR",
+  "Sprint Velocity","Story Points","Bugs Closed","Features Shipped","PRs Merged",
+  "Code Reviews","Tests Passed","Test Coverage","Tech Debt","Refactors",
+  "Meetings","Action Items","Decisions","Blockers","Escalations",
+  "Trainings Done","Certifications","Reviews","Promotions","Hires",
+  "Applications","Interviews","Offers Made","Accepted","Declined",
+  "Events","Attendees","Sponsors","Partnerships","Media Coverage"
+];
+
+const barGrid = document.getElementById('bar-grid');
+for (let i = 0; i < 100; i++) {
+  const vals = makeBarData();
+  const syntax = '{b:' + vals.join(',') + '}';
+  barGrid.appendChild(makeCard(syntax, barLabels[i] || 'Example ' + (i+1)));
+}
+
+// --- Sparkline labels (English) ---
+const sparkLabels = [
+  "Stock Price","BTC Price","Weekly Temp","Body Weight","Daily Steps",
+  "Calories","Sleep","Heart Rate","Daily Mood","Productivity",
+  "Daily Revenue","Expenses","Savings","Investments","Dividends",
+  "MoM Growth","ARR","MRR","MoM Churn","Customer LTV",
+  "CAC","Campaign ROI","Avg CPC","CTR","Impressions",
+  "Reach","Engagement","Followers Growth","Mentions","Positive Sentiment",
+  "Negative Sentiment","Share of Voice","Backlinks","Domain Rating","Organic Traffic",
+  "Paid Traffic","Referral Traffic","Direct Traffic","Social Traffic","Email Traffic",
+  "Weekly Conversions","Weekly Revenue","Weekly Refunds","New Customers","Active Customers",
+  "Mobile Sessions","Desktop Sessions","Tablet Sessions","iOS vs Android","App Opens",
+  "Crashes","Ratings","Reviews","MAU","DAU",
+  "WAU","Stickiness","D1 Retention","D7 Retention","D30 Retention",
+  "Feature Adoption","Activation Rate","Aha Moment","Time to Value","Support Tickets",
+  "Resolution Time","Ticket Satisfaction","Escalations","Reopened","First Contact",
+  "Sprint Burndown","Sprint Velocity","Tech Debt","PR Cycle Time","Deploy Frequency",
+  "DORA Score","Test Coverage","Bugs Introduced","Bugs Fixed","Incidents",
+  "API Latency","Error Rate","Throughput","Cache Hit Rate","DB Query Time",
+  "Energy Usage","Carbon Footprint","Water Used","Raw Materials","Packaging",
+  "CO2 Deliveries","Customer Returns","Weekly NPS","Weekly CSAT","Weekly CES",
+  "Overtime Hours","Leave Taken","Absences","Training Hours","Team Satisfaction",
+  "Applications","Interviews","Hiring Pipeline","Time to Hire","Turnover"
+];
+
+const sparkGrid = document.getElementById('sparkline-grid');
+for (let i = 0; i < 100; i++) {
+  const vals = makeSparkData();
+  const syntax = '{l:' + vals.join(',') + '}';
+  sparkGrid.appendChild(makeCard(syntax, sparkLabels[i] || 'Example ' + (i+1)));
+}
+
+// --- Pie labels (English) ---
+const pieLabels = [
+  "1% done","2% budget","3% progress","4% load","5% converted",
+  "6% clicked","7% active","8% replied","9% delivered","10% opened",
+  "11% adopted","12% retained","13% engaged","14% funded","15% allocated",
+  "16% used","17% planned","18% completed","19% sold","20% market share",
+  "21% mobilized","22% realized","23% invested","24% covered","25% of quota",
+  "26% explored","27% resolved","28% approved","29% deployed","30% converted",
+  "31% reached","32% filled","33% one third","34% projected","35% validated",
+  "36% optimized","37% signed","38% activated","39% measured","40% two fifths",
+  "41% nearly half","42% favored","43% near half","44% near half","45% almost half",
+  "46% under half","47% under half","48% under half","49% just under","50% half",
+  "51% majority","52% past half","53% past half","54% past half","55% over half",
+  "56% engaged","57% on target","58% advanced","59% close","60% three fifths",
+  "61% solid","62% strong","63% good","64% very good","65% on goal",
+  "66% two thirds","67% two thirds+","68% well ahead","69% near 70","70% milestone",
+  "71% exceeded","72% good margin","73% confident","74% near 75","75% three quarters",
+  "76% clearly over","77% solid","78% ahead","79% near 80","80% major milestone",
+  "81% very good","82% excellent","83% remarkable","84% near 85","85% checkpoint",
+  "86% near end","87% almost","88% near complete","89% final stretch","90% key milestone",
+  "91% very close","92% near done","93% final","94% ultimate","95% almost there",
+  "96% near 100","97% near 100","98% near 100","99% almost","100% complete"
+];
+
+const pieGrid = document.getElementById('pie-grid');
+for (let i = 1; i <= 100; i++) {
+  const syntax = '{p:' + i + '}';
+  pieGrid.appendChild(makeCard(syntax, pieLabels[i-1]));
+}
+</script>
+</body>
+</html>
