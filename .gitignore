@@ -25,6 +25,9 @@ nohup.out
 docs/og-template.html
 scripts/generate_og_image.py
 
+# Promo image generation
+sources/gen_promo.py
+
 # Fontbakery validation reports
 fontbakery*.txt
 
