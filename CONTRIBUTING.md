@@ -307,8 +307,6 @@ When requesting features:
 We welcome contributions in these areas:
 
 ### High Priority
-- **Automated tests** — Unit tests, integration tests, visual regression tests
-- **CI/CD pipeline** — GitHub Actions for automated builds and validation
 - **Documentation** — Improve examples, add troubleshooting guides
 - **Accessibility** — Improve semantic HTML, ARIA labels in specimen site
 
