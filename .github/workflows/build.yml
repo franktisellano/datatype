@@ -7,6 +7,26 @@ on:
     branches: [ main ]
 
 jobs:
+  unit-tests:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+
+    - name: Set up Python
+      uses: actions/setup-python@v5
+      with:
+        python-version: '3.11'
+
+    - name: Install test dependencies
+      run: |
+        pip install --upgrade pip
+        pip install -r requirements-dev.txt
+
+    - name: Run unit tests
+      run: python -m pytest
+
   build:
     runs-on: ubuntu-latest
 
@@ -43,6 +63,43 @@ jobs:
         name: fonts
         path: fonts/
         retention-days: 7
+
+  browser-tests:
+    runs-on: ubuntu-latest
+    needs: build
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+
+    - name: Download built fonts
+      uses: actions/download-artifact@v4
+      with:
+        name: fonts
+        path: fonts
+
+    - name: Set up Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '22'
+        cache: npm
+
+    - name: Install browser-test dependencies
+      run: npm ci
+
+    - name: Install Playwright browsers
+      run: npx playwright install --with-deps chromium firefox webkit
+
+    - name: Run Playwright tests
+      run: npm run test:browser
+
+    - name: Upload Playwright report
+      if: always()
+      uses: actions/upload-artifact@v4
+      with:
+        name: playwright-report
+        path: playwright-report/
+        retention-days: 14
 
   validate:
     runs-on: ubuntu-latest

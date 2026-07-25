@@ -67,7 +67,7 @@ Datatype generates OpenType variable fonts using fontTools. The key components:
 
 **Variable font structure:**
 - **9 masters per scale** — Full coverage of width/weight design space
-- **2 axes** — wdth (0-100), wght (100-900)
+- **2 axes** — wdth (50-150), wght (100-900)
 - **GSUB features** — Contextual alternates (`calt`) for chart substitution
 
 ### Making Changes
@@ -159,13 +159,41 @@ Before submitting changes, verify:
 
 ### Automated Testing
 
-Currently, the project does not have automated tests. **Contributions welcome!**
+Install the development and browser-test dependencies:
 
-Ideas for test coverage:
-- Unit tests for glyph generation functions
-- OpenType feature validation
-- Font metadata verification
-- Cross-browser rendering tests
+```bash
+pip install -r requirements-dev.txt
+npm install
+npx playwright install
+```
+
+Run the Python unit tests:
+
+```bash
+make test-unit
+```
+
+The unit suite checks glyph generation, OpenType feature code, the variable
+designspace, font metadata, and the structure of the checked-in variable font.
+
+Run the browser tests in Chromium, Firefox, and WebKit:
+
+```bash
+make test-browser
+```
+
+The Playwright suite loads the generated WOFF2 file in a real browser and checks
+bar, sparkline, and pie substitutions along with variable width and weight
+behavior.
+
+Run both suites:
+
+```bash
+make test
+```
+
+GitHub Actions runs the unit suite, builds fresh fonts, and then runs the browser
+suite against those build artifacts for every pull request.
 
 ---
 

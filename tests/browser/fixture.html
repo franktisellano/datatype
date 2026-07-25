@@ -1,0 +1,76 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Datatype browser tests</title>
+  <style>
+    @font-face {
+      font-family: "Datatype";
+      src: url("/fonts/variable/Datatype%5Bwdth%2Cwght%5D.woff2") format("woff2");
+      font-weight: 100 900;
+      font-stretch: 50% 150%;
+      font-display: block;
+    }
+
+    body {
+      margin: 0;
+      background: white;
+      color: black;
+    }
+
+    .sample {
+      display: inline-block;
+      white-space: pre;
+      font-family: "Datatype", monospace;
+      font-size: 80px;
+      line-height: 1.2;
+      font-variation-settings: "wdth" 100, "wght" 400;
+    }
+
+    .features-off {
+      font-feature-settings: "calt" 0, "liga" 0;
+    }
+
+    .narrow {
+      font-variation-settings: "wdth" 50, "wght" 400;
+    }
+
+    .wide {
+      font-variation-settings: "wdth" 150, "wght" 400;
+    }
+
+    .thin {
+      font-variation-settings: "wdth" 100, "wght" 100;
+    }
+
+    .black {
+      font-variation-settings: "wdth" 100, "wght" 900;
+    }
+  </style>
+</head>
+<body>
+  <div id="bar" class="sample">{b:10,50,90}</div>
+  <div id="bar-raw" class="sample features-off">{b:10,50,90}</div>
+
+  <div id="spark" class="sample">{l:20,80,30,70}</div>
+  <div id="spark-raw" class="sample features-off">{l:20,80,30,70}</div>
+
+  <div id="pie" class="sample">{p:25}</div>
+  <div id="pie-raw" class="sample features-off">{p:25}</div>
+
+  <div id="bar-narrow" class="sample narrow">{b:10,50,90}</div>
+  <div id="bar-wide" class="sample wide">{b:10,50,90}</div>
+
+  <div id="bar-thin" class="sample thin">{b:10,50,90}</div>
+  <div id="bar-black" class="sample black">{b:10,50,90}</div>
+
+  <div id="pie-25" class="sample">{p:25}</div>
+  <div id="pie-75" class="sample">{p:75}</div>
+
+  <script>
+    document.fonts.ready.then(() => {
+      document.documentElement.dataset.fonts = "ready";
+    });
+  </script>
+</body>
+</html>
