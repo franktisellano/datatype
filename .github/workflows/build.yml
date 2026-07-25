@@ -127,14 +127,21 @@ jobs:
 
     - name: Run fontbakery checks
       run: |
-        fontbakery check-googlefonts "fonts/variable/Datatype[wdth,wght].ttf" --succinct || true
-        echo "✓ Fontbakery validation complete (check logs for details)"
+        set -o pipefail
+        fontbakery check-googlefonts \
+          --succinct \
+          --ghmarkdown fontbakery-report.md \
+          "fonts/variable/Datatype[wdth,wght].ttf" \
+          2>&1 | tee fontbakery-output.txt
       continue-on-error: true
 
     - name: Upload validation report
       uses: actions/upload-artifact@v6
       with:
         name: fontbakery-report
-        path: fontbakery-*.txt
+        path: |
+          fontbakery-report.md
+          fontbakery-output.txt
+        if-no-files-found: error
         retention-days: 30
       if: always()
