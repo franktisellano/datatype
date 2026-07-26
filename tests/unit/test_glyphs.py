@@ -1,8 +1,10 @@
 """Unit tests for chart glyph generation."""
 
+from fontTools.pens.areaPen import AreaPen
 from fontTools.pens.recordingPen import RecordingPen
 
 from sources.config import FontParams
+from sources.glyphs.base_imported import draw_base_glyphs
 from sources.glyphs.bar import draw_bar_glyphs
 from sources.glyphs.pie import draw_pie_glyphs
 from sources.glyphs.sparkline import draw_sparkline_glyphs
@@ -10,6 +12,12 @@ from sources.glyphs.sparkline import draw_sparkline_glyphs
 
 def _record(draw_function):
     pen = RecordingPen()
+    draw_function(pen)
+    return pen.value
+
+
+def _signed_area(draw_function):
+    pen = AreaPen()
     draw_function(pen)
     return pen.value
 
@@ -55,3 +63,24 @@ def test_pie_glyphs_cover_zero_through_one_hundred():
     assert _record(glyphs["pie_0"][1])
     assert _record(glyphs["pie_50"][1])
     assert _record(glyphs["pie_100"][1])
+
+
+def test_visible_glyphs_use_truetype_winding():
+    base_glyphs = {}
+    bar_glyphs = {}
+    spark_glyphs = {}
+    pie_glyphs = {}
+
+    draw_base_glyphs(base_glyphs)
+    draw_bar_glyphs(bar_glyphs, FontParams(max_value=10))
+    draw_sparkline_glyphs(spark_glyphs, FontParams(max_value=2))
+    draw_pie_glyphs(pie_glyphs)
+
+    # TrueType outer contours wind clockwise, producing a negative signed area.
+    assert _signed_area(base_glyphs[".notdef"][1]) < 0
+    assert _signed_area(base_glyphs["uni0041"][1]) < 0
+    assert _signed_area(bar_glyphs["bar_h10"][1]) < 0
+    assert _signed_area(spark_glyphs["spark_0_to_2"][1]) < 0
+    assert _signed_area(pie_glyphs["pie_0"][1]) < 0
+    assert _signed_area(pie_glyphs["pie_50"][1]) < 0
+    assert _signed_area(pie_glyphs["pie_100"][1]) < 0

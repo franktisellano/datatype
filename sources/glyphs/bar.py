@@ -7,10 +7,11 @@ from sources.config import (
 
 
 def _draw_rect(pen, x0, y0, x1, y1):
+    """Draw a clockwise outer rectangle for TrueType outlines."""
     pen.moveTo((x0, y0))
-    pen.lineTo((x1, y0))
-    pen.lineTo((x1, y1))
     pen.lineTo((x0, y1))
+    pen.lineTo((x1, y1))
+    pen.lineTo((x1, y0))
     pen.closePath()
 
 

@@ -214,7 +214,8 @@ datatype/
 │   ├── variable/          # Variable font files
 │   ├── ttf/               # Static TTF instances
 │   └── webfonts/          # Static WOFF2 instances
-└── OFL.txt                 # SIL Open Font License 1.1
+├── OFL.txt                 # SIL Open Font License 1.1
+└── NOTICE.txt              # Third-party font attribution
 ```
 
 ---
@@ -243,6 +244,8 @@ See [OFL.txt](OFL.txt) for full license text.
 ## Credits
 
 **Design & Development**: [Frank Tisellano](https://github.com/franktisellano)
+
+**Latin glyph outlines**: Derived from [IBM Plex Mono](https://github.com/IBM/plex)
 
 **Built with**: [fontTools](https://github.com/fonttools/fonttools)
 

@@ -7,6 +7,8 @@ https://github.com/IBM/plex
 import pickle
 import os
 
+from fontTools.pens.reverseContourPen import ReverseContourPen
+
 from sources.config import UPM, ASCENDER, ASCII_WIDTH, SPACE_WIDTH, DIGIT_WIDTH, CAP_HEIGHT, X_HEIGHT
 
 # Google Fonts Latin Core codepoints (319 codepoints)
@@ -69,6 +71,9 @@ def _draw_imported_glyph(pen, char):
         _draw_rect(pen, 50, 0, ASCII_WIDTH - 50, CAP_HEIGHT)
         return
 
+    # IBM Plex outlines were imported with PostScript winding. Reverse every
+    # contour when emitting TrueType outlines so filled regions wind clockwise.
+    pen = ReverseContourPen(pen)
     data = _IMPORTED_GLYPHS[char]
     commands = data['commands']
 
@@ -92,7 +97,16 @@ def _draw_imported_glyph(pen, char):
 
 
 def _draw_rect(pen, x0, y0, x1, y1):
-    """Draw a simple rectangle (fallback)."""
+    """Draw a clockwise outer rectangle for TrueType outlines."""
+    pen.moveTo((x0, y0))
+    pen.lineTo((x0, y1))
+    pen.lineTo((x1, y1))
+    pen.lineTo((x1, y0))
+    pen.closePath()
+
+
+def _draw_rect_hole(pen, x0, y0, x1, y1):
+    """Draw a counter-clockwise rectangular hole."""
     pen.moveTo((x0, y0))
     pen.lineTo((x1, y0))
     pen.lineTo((x1, y1))
@@ -103,7 +117,7 @@ def _draw_rect(pen, x0, y0, x1, y1):
 def _make_notdef(pen):
     """Draw .notdef (empty rectangle)."""
     _draw_rect(pen, 50, 0, 450, CAP_HEIGHT)
-    _draw_rect(pen, 100, 50, 400, CAP_HEIGHT - 50)
+    _draw_rect_hole(pen, 100, 50, 400, CAP_HEIGHT - 50)
 
 
 def _make_block_letter(pen, char):

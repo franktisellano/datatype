@@ -351,8 +351,10 @@ The font generates 10,626 glyphs. To reduce build time during development:
 Validate fonts with fontbakery:
 
 ```bash
-pip install fontbakery
-fontbakery check-opentype fonts/Datatype.ttf
+pip install -r requirements-dev.txt
+fontbakery check-googlefonts \
+  --configuration fontbakery.yaml \
+  "fonts/variable/Datatype[wdth,wght].ttf"
 ```
 
 ---

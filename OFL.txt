@@ -1,7 +1,4 @@
-Copyright 2026 The Datatype Project Authors (https://github.com/franktisellano/datatype)
-
-This font includes glyphs from IBM Plex™ Mono:
-Copyright 2017 IBM Corp. with Reserved Font Name "Plex"
+Copyright 2026 The Datatype Project Authors (https://github.com/franktisellano/datatype); Copyright 2017 IBM Corp. with Reserved Font Name "Plex"
 
 This Font Software is licensed under the SIL Open Font License, Version 1.1.
 This license is copied below, and is also available with a FAQ at:

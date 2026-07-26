@@ -55,3 +55,8 @@ def test_font_version_and_latin_core_coverage(font):
     assert font["head"].fontRevision == pytest.approx(float(FONT_VERSION), abs=0.001)
     assert len(font.getBestCmap()) == 319
     assert font["maxp"].numGlyphs == 10_850
+
+
+def test_mixed_width_metadata_is_not_monospaced(font):
+    assert font["post"].isFixedPitch == 0
+    assert font["OS/2"].panose.bProportion != 9

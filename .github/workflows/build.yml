@@ -129,6 +129,7 @@ jobs:
       run: |
         set -o pipefail
         fontbakery check-googlefonts \
+          --configuration fontbakery.yaml \
           --succinct \
           --ghmarkdown fontbakery-report.md \
           "fonts/variable/Datatype[wdth,wght].ttf" \
