@@ -21,3 +21,12 @@ exclude_checks:
 
   # DTPE is the project's chosen vendor ID but is not yet in Microsoft's list.
   - googlefonts/vendor_id
+
+  # Google Fonts requires the registered STAT particle names across the full
+  # wdth and wght ranges. Combining those names with "Datatype" exceeds the
+  # legacy 31-character Microsoft Word limit for combinations such as
+  # "Datatype UltraCondensed ExtraLight". Shortening the particles would fail
+  # the Google Fonts axis-registry checks, while shortening the family name
+  # would change the public identity of the project. We accept the Word menu
+  # and fallback limitation rather than compromise either requirement.
+  - name/family_and_style_max_length
