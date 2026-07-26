@@ -1,3 +1,4 @@
 -r requirements.txt
-fontbakery==1.1.0
+fontbakery[googlefonts]==1.1.0
+pytest>=8.3,<9
 gftools==0.9.63

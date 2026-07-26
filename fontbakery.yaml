@@ -1,0 +1,32 @@
+# Datatype is a mixed-width chart font rather than a conventional text family.
+# Keep intentional exceptions explicit so the remaining report stays actionable.
+exclude_checks:
+  # Printable ASCII is deliberately monospaced while chart ligatures have
+  # data-dependent advances. FontBakery only models fully mono/proportional
+  # families, so its monospacing heuristic cannot represent this hybrid.
+  - opentype/monospace
+
+  # The generated chart vocabulary requires more than 10,000 glyphs.
+  - file_size
+
+  # Text glyphs are fixed-width and intentionally do not use pair kerning.
+  - gpos_kerning_info
+
+  # Both variable axes currently use linear mappings, so an identity avar table
+  # would add no information.
+  - mandatory_avar_table
+
+  # Repository content used only when submitting a family to google/fonts.
+  - googlefonts/article/images
+
+  # DTPE is the project's chosen vendor ID but is not yet in Microsoft's list.
+  - googlefonts/vendor_id
+
+  # Google Fonts requires the registered STAT particle names across the full
+  # wdth and wght ranges. Combining those names with "Datatype" exceeds the
+  # legacy 31-character Microsoft Word limit for combinations such as
+  # "Datatype UltraCondensed ExtraLight". Shortening the particles would fail
+  # the Google Fonts axis-registry checks, while shortening the family name
+  # would change the public identity of the project. We accept the Word menu
+  # and fallback limitation rather than compromise either requirement.
+  - name/family_and_style_max_length

@@ -1,0 +1,6 @@
+Datatype includes Latin glyph outlines derived from IBM Plex Mono.
+
+Copyright 2017 IBM Corp. with Reserved Font Name "Plex"
+
+IBM Plex is licensed under the SIL Open Font License, Version 1.1:
+https://github.com/IBM/plex/blob/master/LICENSE.txt

@@ -16,6 +16,12 @@ from sources.config import (
     TYPO_ASCENDER, TYPO_DESCENDER, WIN_ASCENT, WIN_DESCENT,
 )
 
+COPYRIGHT_TEXT = (
+    "Copyright 2026 The Datatype Project Authors "
+    "(https://github.com/franktisellano/datatype); "
+    "Copyright 2017 IBM Corp."
+)
+
 
 def build_font(glyph_data, feature_code, style=REGULAR_STYLE, family_name=FAMILY_NAME):
     """Build a complete TTF font (single static master).
@@ -80,7 +86,7 @@ def build_font(glyph_data, feature_code, style=REGULAR_STYLE, family_name=FAMILY
     fb.setupNameTable({
         "familyName": family_name,
         "styleName": style,
-        "copyright": "Copyright 2026 The Datatype Project Authors (https://github.com/franktisellano/datatype)",
+        "copyright": COPYRIGHT_TEXT,
         "manufacturer": "Datatype Project",
         "licenseDescription": "This Font Software is licensed under the SIL Open Font License, Version 1.1.",
         "licenseInfoURL": "https://openfontlicense.org",
@@ -151,7 +157,7 @@ def build_font(glyph_data, feature_code, style=REGULAR_STYLE, family_name=FAMILY
     os2.panose.bFamilyType = 2   # Latin Text
     os2.panose.bSerifStyle = 11  # Sans Serif
     os2.panose.bWeight = 5       # Book (will vary with weight axis)
-    os2.panose.bProportion = 9   # Monospaced (ASCII glyphs are fixed-width)
+    os2.panose.bProportion = 0   # Mixed-width design: fixed-width text plus chart glyphs
     os2.panose.bContrast = 0     # Any
     os2.panose.bStrokeVariation = 0  # Any
     os2.panose.bArmStyle = 0     # Any
@@ -178,9 +184,8 @@ def build_font(glyph_data, feature_code, style=REGULAR_STYLE, family_name=FAMILY
     name_table = font["name"]
 
     # Name ID 0: Copyright
-    copyright_text = "Copyright 2026 The Datatype Project Authors (https://github.com/franktisellano/datatype)"
-    name_table.setName(copyright_text, 0, 3, 1, 0x0409)  # Windows
-    name_table.setName(copyright_text, 0, 1, 0, 0)       # Mac
+    name_table.setName(COPYRIGHT_TEXT, 0, 3, 1, 0x0409)  # Windows
+    name_table.setName(COPYRIGHT_TEXT, 0, 1, 0, 0)       # Mac
 
     # Name ID 3: Unique Font Identifier
     unique_id = f"{FONT_VERSION};NONE;{family_name}-{style}"

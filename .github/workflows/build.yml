@@ -7,15 +7,35 @@ on:
     branches: [ main ]
 
 jobs:
+  unit-tests:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v5
+
+    - name: Set up Python
+      uses: actions/setup-python@v6
+      with:
+        python-version: '3.11'
+
+    - name: Install test dependencies
+      run: |
+        pip install --upgrade pip
+        pip install -r requirements-dev.txt
+
+    - name: Run unit tests
+      run: python -m pytest
+
   build:
     runs-on: ubuntu-latest
 
     steps:
     - name: Checkout repository
-      uses: actions/checkout@v4
+      uses: actions/checkout@v5
 
     - name: Set up Python
-      uses: actions/setup-python@v5
+      uses: actions/setup-python@v6
       with:
         python-version: '3.11'
 
@@ -38,11 +58,48 @@ jobs:
         echo "✓ Static WOFF2: $(ls fonts/webfonts/*.woff2 | wc -l) files"
 
     - name: Upload font artifacts
-      uses: actions/upload-artifact@v4
+      uses: actions/upload-artifact@v6
       with:
         name: fonts
         path: fonts/
         retention-days: 7
+
+  browser-tests:
+    runs-on: ubuntu-latest
+    needs: build
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v5
+
+    - name: Download built fonts
+      uses: actions/download-artifact@v7
+      with:
+        name: fonts
+        path: fonts
+
+    - name: Set up Node.js
+      uses: actions/setup-node@v5
+      with:
+        node-version: '22'
+        cache: npm
+
+    - name: Install browser-test dependencies
+      run: npm ci
+
+    - name: Install Playwright browsers
+      run: npx playwright install --with-deps chromium firefox webkit
+
+    - name: Run Playwright tests
+      run: npm run test:browser
+
+    - name: Upload Playwright report
+      if: always()
+      uses: actions/upload-artifact@v6
+      with:
+        name: playwright-report
+        path: playwright-report/
+        retention-days: 14
 
   validate:
     runs-on: ubuntu-latest
@@ -50,32 +107,42 @@ jobs:
 
     steps:
     - name: Checkout repository
-      uses: actions/checkout@v4
+      uses: actions/checkout@v5
+
+    - name: Download built fonts
+      uses: actions/download-artifact@v7
+      with:
+        name: fonts
+        path: fonts
 
     - name: Set up Python
-      uses: actions/setup-python@v5
+      uses: actions/setup-python@v6
       with:
         python-version: '3.11'
 
-    - name: Install dependencies
+    - name: Install validation dependencies
       run: |
         pip install --upgrade pip
-        pip install -r requirements.txt
         pip install -r requirements-dev.txt
-
-    - name: Build fonts (full build for validation)
-      run: python sources/build.py
 
     - name: Run fontbakery checks
       run: |
-        fontbakery check-googlefonts "fonts/variable/Datatype[wdth,wght].ttf" --succinct || true
-        echo "✓ Fontbakery validation complete (check logs for details)"
+        set -o pipefail
+        fontbakery check-googlefonts \
+          --configuration fontbakery.yaml \
+          --succinct \
+          --ghmarkdown fontbakery-report.md \
+          "fonts/variable/Datatype[wdth,wght].ttf" \
+          2>&1 | tee fontbakery-output.txt
       continue-on-error: true
 
     - name: Upload validation report
-      uses: actions/upload-artifact@v4
+      uses: actions/upload-artifact@v6
       with:
         name: fontbakery-report
-        path: fontbakery-*.txt
+        path: |
+          fontbakery-report.md
+          fontbakery-output.txt
+        if-no-files-found: error
         retention-days: 30
       if: always()

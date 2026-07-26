@@ -55,7 +55,7 @@ def _draw_empty_circle(pen, cx, cy, r, stroke=30):
     """Draw an empty circle (ring) for pie_0."""
     r_inner = r - stroke
     # Outer circle (clockwise)
-    pts_outer = _arc_points(cx, cy, r, 0, 2 * math.pi)
+    pts_outer = _arc_points(cx, cy, r, 2 * math.pi, 0)
     pen.moveTo(pts_outer[0])
     i = 1
     while i < len(pts_outer) - 1:
@@ -63,7 +63,7 @@ def _draw_empty_circle(pen, cx, cy, r, stroke=30):
         i += 2
     pen.closePath()
     # Inner circle (counter-clockwise = hole)
-    pts_inner = _arc_points(cx, cy, r_inner, 2 * math.pi, 0)
+    pts_inner = _arc_points(cx, cy, r_inner, 0, 2 * math.pi)
     pen.moveTo(pts_inner[0])
     i = 1
     while i < len(pts_inner) - 1:
@@ -74,7 +74,7 @@ def _draw_empty_circle(pen, cx, cy, r, stroke=30):
 
 def _draw_full_circle(pen, cx, cy, r):
     """Draw a fully filled circle for pie_100."""
-    pts = _arc_points(cx, cy, r, 0, 2 * math.pi)
+    pts = _arc_points(cx, cy, r, 2 * math.pi, 0)
     pen.moveTo(pts[0])
     i = 1
     while i < len(pts) - 1:

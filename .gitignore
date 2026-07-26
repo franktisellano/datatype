@@ -1,9 +1,18 @@
+.idea
+
 # Python
 .venv/
 __pycache__/
 *.pyc
 *.pyo
 *.pyd
+.pytest_cache/
+
+# Node / Playwright
+node_modules/
+test-results/
+playwright-report/
+blob-report/
 
 # Claude Code
 .claude/
